@@ -9,4 +9,4 @@ def main():
     buat_database()
     isi_data_awal()
 
-test push
+test push 1
