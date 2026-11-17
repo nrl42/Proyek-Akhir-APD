@@ -10,3 +10,4 @@ def main():
     isi_data_awal()
 
 print ("TEST")
+print("Hello World")
