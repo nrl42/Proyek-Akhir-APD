@@ -49,6 +49,5 @@ def main():
     db.siapkan_database()
     menu_awal()
 
-if__name__ == "__main__":
+if __name__ == "__main__":
     main()
-
