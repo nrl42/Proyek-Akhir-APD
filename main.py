@@ -32,7 +32,7 @@ def login():
     username = input("username: ").strip()
     password = input("password: "). strip()
 
-    if username == admin_username and password = admin_password:
+    if username == admin_username and password == admin_password:
         menu_admin()
         return
 
