@@ -9,4 +9,16 @@ def main():
     buat_database()
     isi_data_awal()
 
-print ("TEST")
+    while True:
+        print("\n==============================")
+        print("TIKET KONSER HINDIA ")
+        print("==============================")
+        tampilkan_info_konser()
+
+        while True:
+        print("\n--- MENU ---")
+        print("1. Login")
+        print("2. Register")
+        print("3. Konser Tersedia")
+        print("4. Logout")
+        pilih = input("Pilih menu: ")
