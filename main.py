@@ -8,9 +8,9 @@ from menu_staff import menu_admin, menu_petugas
 
 def tampilkan_info_konser():
     konser = baca_data(file_konser)
-    print("\n==========")
+    print("\n====================")
     print(" ", konser["judul"])
-    print("==========")
+    print("====================")
     print("tanggal : ", konser["tanggal"])
     print("waktu :", konser["waktu"])
     print("lokasi :", konser["lokasi"])
@@ -31,12 +31,11 @@ def masuk_sesuai_role(akun):
         menu_user(akun)
 
 def main():
-    tampilkan_info_konser
-
+    tampil_info = True
 
     while True:
         if tampil_info:
-            tampilkan_info_konser
+            tampilkan_info_konser()
             tampil_info = False
 
         print("\n=====MENU TIKET KONSER HINDIA=====")

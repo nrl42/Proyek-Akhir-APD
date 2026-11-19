@@ -35,8 +35,9 @@ def register():
         username = input("username: ")
 
         sudah_terdaftar =  False
-        for akun in["username"] == username:
-            sudah_terdaftar = True
+        for akun in daftar_akun:
+            if akun["username"] == username:
+                sudah_terdaftar = True
 
         if username == "":
             print("Username tidak boleh kosong!")

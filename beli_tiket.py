@@ -1,4 +1,4 @@
-from database import baca_data, simpan-data, file_tiket, file_konser
+from database import baca_data, simpan_data, file_tiket, file_konser
 from bantuan import rupiah, buat_kode_pesanan, buat_kode_unik
 
 def input_angka(pesan):
@@ -105,4 +105,4 @@ def beli_tiket(akun):
     pesanan["status"] = "Lunas"
     simpan_data(file_tiket, daftar_tiket)
 
-    tampilkan_struk(pesanan)
+    tampilkan_struk

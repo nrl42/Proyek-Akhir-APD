@@ -1,5 +1,9 @@
 import random
 import string
+import os
+
+def clear():
+    os.system('cls || clear')
 
 def rupiah(angka):
     return "Rp" + format(angka, ",").replace(",", ".")
