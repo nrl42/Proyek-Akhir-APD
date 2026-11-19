@@ -1,0 +1,26 @@
+{
+    "judul": "Konser Hindia",
+    "tanggal": "20 Desember 2026",
+    "waktu": "19.00 WITA",
+    "lokasi": "Isi sesuai soal",
+    "kategori": [
+        {
+            "nomor": 1,
+            "jenis": "Reguler",
+            "harga": 50000,
+            "kuota": 100
+        },
+        {
+            "nomor": 2,
+            "jenis": "VIP",
+            "harga": 100000,
+            "kuota": 50
+        },
+        {
+            "nomor": 3,
+            "jenis": "VVIP",
+            "harga": 150000,
+            "kuota": 20
+        }
+    ]
+}
