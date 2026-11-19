@@ -31,7 +31,8 @@ def masuk_sesuai_role(akun):
         menu_user(akun)
 
 def main():
-    tampil_info = True
+    tampilkan_info_konser
+
 
     while True:
         if tampil_info:
@@ -54,7 +55,7 @@ def main():
             register()
 
         elif pilihan == "3":
-            tampil_info = True
+            tampilkan_kategori_tiket
 
         elif pilihan == "4":
             print("Terima Kasih")
@@ -62,6 +63,7 @@ def main():
 
         else:
             print("pilihan tidak valid")
-            tampil_info = True
 
-main()
+
+if __name__ == "__main__" :
+    main()
