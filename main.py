@@ -1,51 +1,67 @@
 
-import database as db
-from auth import login, register_pelanggan
-from bantuan import admin_password, admin_username, tampilkan_konser_hindia
+from database import baca_data, file_konser
+from bantuan import rupiah
+from auth import login, register
+from menu_user import menu_user
+from menu_staff import menu_admin, menu_petugas
 
-from admin import menu_admin
-from petugas import menu_petugas
-from pelanggan import menu_pelanggan
 
-def menu_awal():
+def tampilkan_info_konser():
+    konser = baca_data(file_konser)
+    print("\n==========")
+    print(" ", konser["judul"])
+    print("==========")
+    print("tanggal : ", konser["tanggal"])
+    print("waktu :", konser["waktu"])
+    print("lokasi :", konser["lokasi"])
+
+def tampilkan_kategori_tiket():
+    konser = baca_data(file_konser)
+    tampilkan_info_konser()
+    print("\n kategori tiket yang tesedia:")
+    for k in konser["kategori"]:
+        print(f"-{k['jenis']}: {rupiah(k['harga'])} (sisa kuota:{k['kuota']})")
+
+def masuk_sesuai_role(akun):
+    if akun["role"] == "admin":
+        menu_admin(akun)
+    elif akun["role"] == "petugas":
+        menu_petugas(akun)
+    else:
+        menu_user(akun)
+
+def main():
+    tampil_info = True
+
     while True:
-        print("\nTIKET KONSER HINDIA")
+        if tampil_info:
+            tampilkan_info_konser
+            tampil_info = False
+
+        print("\n=====MENU TIKET KONSER HINDIA=====")
         print("1. login")
-        print("2. Register")
+        print("2. register")
         print("3. konser tersedia")
         print("4. logout")
 
-        pilihan = input("pilih menu:").strip()
+        pilihan = input("pilihan: ")
 
         if pilihan == "1":
-            pengguna = login()
-
-            if pengguna is not None:
-
-                if pengguna["role"] == "admin":
-                    menu_admin()
-                    
-                elif pengguna["role"] == "petugas":
-                    menu_petugas(pengguna)
-
-                elif pengguna["role"] == "pelanggan":
-                    menu_pelanggan(pengguna)
-
+            akun = login()
+            if akun is not None:
+                masuk_sesuai_role(akun)
         elif pilihan == "2":
             register()
 
         elif pilihan == "3":
-            tampilkan_konser_hindia()
+            tampil_info = True
 
         elif pilihan == "4":
-            print("terima kasih")
+            print("Terima Kasih")
             break
+
         else:
             print("pilihan tidak valid")
+            tampil_info = True
 
-def main():
-    db.siapkan_database()
-    menu_awal()
-
-if __name__ == "__main__":
-    main()
+main()

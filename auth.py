@@ -1,48 +1,61 @@
 
-import database as db
+from database import baca_data, simpan_data, file_akun
 
-maks_percobaan = 3
 
-def register_pelanggan():
-    print("\nREGISTER PELANGGAN")
-    nama = input("masukkan nama anda: ").strip()
-    username = input("masukkan username anda: ").strip().lower()
-    password = input("masukkan password anda: ").strip()
-
-    if nama == "" or username == "" or password =="":
-        print("semua data wajib diisi")
-        return False
-
-    if username == admin_username or db.cari_satu("data_akun_user", username=username):
-        print("username sudah dipakai")
-        return False
-
-    akun = data_akun_user.tambah(username,password,nama,"pelanggan")
-
-    data_pelanggan.tambah(akun["id"])
-    print("selamat Register berhasil silahkan login")
-    return True
 
 def login():
-    print("\n LOGIN")
+    daftar_akun= baca_data(file_akun)
 
-    for percobaan in range(1, maks_percobaan + 1):
-        username = input("username: ").strip().lower()
-        password = input("password: ").strip()
+    i = 0
+    while i != 3:
+        print("\n=====LOGIN=====")
+        username = input("masukkan username anda: ")
+        password = input("masukkan password anda: ")
 
-        if username == admin_username and password == admin_password:
-            print("selamat login berhasil di menu admin")
-            return{"id": 0, "username": admin_username, "nama": "admin","role":"admin"}
+        akun_cocok = None
+        for akun in daftar_akun:
+            if akun["username"] == username and akun["password"] == password:
+                akun_cocok = akun
 
-        pengguna = data_akun_user.cari_login(username,password)
-        if pengguna is not None:
-            print(f"login berhasil{pengguna['nama']}!")
-            return pengguna 
-        
-        sisa = maks_percobaan - percobaan
-        if sisa > 0:
-            print(f"username atau password salah, sisa percobaan : {sisa}")
+        if akun_cocok is not None:
+            print("Selamat login berhasil")
+            return akun_cocok
 
-    print("maaf percobaan login sudah habis kembali ke menu awal")
+        print("maaf login gagal username atau password salah")
+        i = i + 1
+
+    print("gagal login 3 kali")
     return None
 
+def register():
+    daftar_akun = baca_data(file_akun)
+    print("\n=====REGISTER=====")
+
+    while True:
+        username = input("username: ")
+
+        sudah_terdaftar =  False
+        for akun in["username"] == username:
+            sudah_terdaftar = True
+
+        if username == "":
+            print("Username tidak boleh kosong!")
+        elif sudah_terdaftar:           
+            print("Username sudah dipakai!")
+        else:                        
+            break
+
+    nama = input("masukkan nama anda :")
+    password = input("masukkan password anda : ")
+    no_hp = input("masukkan no HP anda :")
+
+    akun_baru={
+        "username": username,
+        "password": password,
+        "nama": nama,
+        "no_hp": no_hp,
+        "role": "User"
+    }
+    daftar_akun.append(akun_baru)
+    simpan_data(file_akun, daftar_akun)
+    print("Selamat Register berhasil silahkan login ke akun anda")

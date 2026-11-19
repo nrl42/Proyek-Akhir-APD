@@ -1,20 +1,24 @@
-admin_username="laharah"
-admin_password="laharah123"
+import random
+import string
 
+def rupiah(angka):
+    return "Rp" + format(angka, ",").replace(",", ".")
 
+def buat_kode_pesanan(daftar_tiket):
+    while True:
+        kode = "PSN" + str(random.randint(1000, 9999))
 
-def tampilkan_konser_hindia():
-    print("\n INFORMASI KONSET HINDIA")
+        sudah_dipakai = False
+        for tiket in daftar_tiket:
+            if tiket["kode_pesan"] == kode:
+                sudah_dipakai = True
 
-    print("nama konser : konser hindia")
-    print("artis : Daniel bagaskara putra ")
-    print("lokasi : samarinda")
-    print("Tanggal : 19 desember 2026")
-    print("waktu : 19.00 WITA")
+        if not sudah_dipakai:
+            return kode
 
-    print("\n KATALOG TIKET")
-    print("1. reguler: 150.000")
-    print("2. vip : 200.000")
-    print("3. vvip : 300.000 ")
-
-
+def buat_kode_unik():
+    huruf_dan_angka = string.ascii_uppercase + string.digits
+    kode = "TKT-"
+    for i in range(6):
+        kode = kode + random.choice(huruf_dan_angka)
+    return kode
