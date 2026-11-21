@@ -1,43 +1,52 @@
 from database import baca_data, simpan_data, file_tiket, file_konser
 from bantuan import rupiah, buat_kode_pesanan, buat_kode_unik
 
+
 def input_angka(pesan):
     try:
         return int(input(pesan))
     except ValueError:
+        print("input harus berupa angka")
         return 0
+
 
 def pilih_kategori(konser):
     while True:
         print("\n=====Pilih kategori tiket=====")
         for k in konser["kategori"]:
-            print(f"{k['nomor']}. {k['jenis']} {k['harga']} (sisa kuota: {k['kuota']})")
+            print(f"{k['nomor']}. {k['jenis']} {rupiah(int(k['harga']))} (sisa kuota: {k['kuota']})")
 
-        kategori = input_angka("input kategori : ")
+        kategori = input_angka("Input kategori : ")
 
         for k in konser["kategori"]:
             if k["nomor"] == kategori:
+                if k["kuota"] < 1:
+                    print("Maaf, kuota kategori ini sudah habis")
+                    break
                 return k
+        else:
+            print("Maaf, kategori tidak valid")
 
-        print("maaf kategori tidak valid")
 
 def input_jumlah(kategori_dipilih):
     while True:
         jumlah = input_angka("Input jumlah tiket: ")
 
-        if jumlah >= 1 and jumlah <= 4 and jumlah <= kategori_dipilih["kuota"]:
+        if 1 <= jumlah <= 4 and jumlah <= kategori_dipilih["kuota"]:
             return jumlah
 
-            print("jumlah tidak valid maks 4 tiket ")
-    
+        print("jumlah tidak valid maksimal 4 tiket dan tidak boleh melibihi kuota")
+
+
 def hitung_diskon(jumlah, harga_awal):
-    if jumlah >= 3 and jumlah <= 4:
+    if 3 <= jumlah <= 4:
         diskon = harga_awal * 10 // 100
     elif jumlah == 2:
         diskon = harga_awal * 5 // 100
     else:
         diskon = 0
     return diskon
+
 
 def tampilkan_rincian(pesanan):
     print("\n=====RINCIAN PEMESANAN=====")
@@ -46,6 +55,7 @@ def tampilkan_rincian(pesanan):
     print("Harga awal :", rupiah(pesanan["harga_awal"]))
     print("Diskon     :", rupiah(pesanan["diskon"]))
     print("Total bayar:", rupiah(pesanan["total_bayar"]))
+
 
 def tampilkan_struk(pesanan):
     print("\n===============")
@@ -62,18 +72,22 @@ def tampilkan_struk(pesanan):
     print("Status     :", pesanan["status"])
     print("===============")
 
+
 def beli_tiket(akun):
     konser = baca_data(file_konser)
     daftar_tiket = baca_data(file_tiket)
 
-    kategori_dipilih = pilih_kategori(konser)
-    jumlah = input_jumlah(kategori_dipilih)
 
     kategori_dipilih = pilih_kategori(konser)
     jumlah = input_jumlah(kategori_dipilih)
+
+
+    harga_awal = int(kategori_dipilih["harga"]) * jumlah
+    diskon = hitung_diskon(jumlah, harga_awal)
+    total_bayar = harga_awal - diskon
 
     pesanan = {
-        "kode_pesan": buat_kode_pesan(daftar_tiket),   # generate otomatis
+        "kode_pesan": buat_kode_pesanan(daftar_tiket),
         "username": akun["username"],
         "kategori": kategori_dipilih["jenis"],
         "jumlah": jumlah,
@@ -88,21 +102,23 @@ def beli_tiket(akun):
     daftar_tiket.append(pesanan)
     simpan_data(file_tiket, daftar_tiket)
 
-    kategori_dipilih["kuota"] = kategori_dipilih["kuota"] - jumlah
-    simpan_data(file_konser, konser)
-
     print("\nKode pesan Anda:", pesanan["kode_pesan"])
     print("Status:", pesanan["status"])
 
-    print("\n=====PEMBAYARA=====")
+
+    print("\n=====PEMBAYARAN=====")
     while True:
         nominal = input_angka("Masukkan nominal pembayaran (" + rupiah(total_bayar) + "): ")
         if nominal == total_bayar:
             break
-        print("Nominal tidak sesuai dengan total bayar anda")
+        print("Nominal tidak sesuai dengan total bayar Anda")
 
     pesanan["kode_unik"] = buat_kode_unik()
     pesanan["status"] = "Lunas"
     simpan_data(file_tiket, daftar_tiket)
 
-    tampilkan_struk
+
+    kategori_dipilih["kuota"] -= jumlah
+    simpan_data(file_konser, konser)
+
+    tampilkan_struk(pesanan)
