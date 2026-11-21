@@ -6,6 +6,7 @@ def input_angka(pesan):
     try:
         return int(input(pesan))
     except ValueError:
+        print("input harus berupa angka")
         return 0
 
 
@@ -34,7 +35,7 @@ def input_jumlah(kategori_dipilih):
         if 1 <= jumlah <= 4 and jumlah <= kategori_dipilih["kuota"]:
             return jumlah
 
-        print("Jumlah tidak valid, maks 4 tiket dan tidak boleh melebihi kuota")
+        print("jumlah tidak valid maksimal 4 tiket dan tidak boleh melibihi kuota")
 
 
 def hitung_diskon(jumlah, harga_awal):
@@ -76,11 +77,11 @@ def beli_tiket(akun):
     konser = baca_data(file_konser)
     daftar_tiket = baca_data(file_tiket)
 
-    # pilih kategori dan jumlah: HANYA SEKALI
+
     kategori_dipilih = pilih_kategori(konser)
     jumlah = input_jumlah(kategori_dipilih)
 
-    # hitung harga
+
     harga_awal = int(kategori_dipilih["harga"]) * jumlah
     diskon = hitung_diskon(jumlah, harga_awal)
     total_bayar = harga_awal - diskon
@@ -104,7 +105,7 @@ def beli_tiket(akun):
     print("\nKode pesan Anda:", pesanan["kode_pesan"])
     print("Status:", pesanan["status"])
 
-    # pembayaran
+
     print("\n=====PEMBAYARAN=====")
     while True:
         nominal = input_angka("Masukkan nominal pembayaran (" + rupiah(total_bayar) + "): ")
@@ -116,7 +117,7 @@ def beli_tiket(akun):
     pesanan["status"] = "Lunas"
     simpan_data(file_tiket, daftar_tiket)
 
-    # kuota dikurangi setelah lunas
+
     kategori_dipilih["kuota"] -= jumlah
     simpan_data(file_konser, konser)
 

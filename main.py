@@ -3,11 +3,12 @@ from database import baca_data, file_konser
 from bantuan import rupiah
 from auth import login, register
 from menu_user import menu_user
-from menu_staff import menu_admin, menu_petugas
+from menu_petugas import  menu_petugas
+from menu_admin import menu_admin
 
 
 def tampilkan_info_konser():
-    konser = baca_data(file_konser)
+    konser = baca_data(file_konser) 
     print("\n====================")
     print(" ", konser["judul"])
     print("====================")
@@ -54,7 +55,7 @@ def main():
             register()
 
         elif pilihan == "3":
-            tampilkan_kategori_tiket
+            tampilkan_kategori_tiket()
 
         elif pilihan == "4":
             print("Terima Kasih")
