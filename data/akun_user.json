@@ -1,0 +1,23 @@
+[
+    {
+        "username": "laharah",
+        "password": "laharah123",
+        "nama": "nurdilpuj",
+        "no_hp": "080000000001",
+        "role": "Admin"
+    },
+    {
+        "username": "petugas",
+        "password": "petugas123",
+        "nama": "rulaja",
+        "no_hp": "080000000002",
+        "role": "Petugas"
+    },
+    {
+        "username": "nurul",
+        "password": "nurul123",
+        "nama": "nurul azizah",
+        "no_hp": "081234329592",
+        "role": "User"
+    }
+]
