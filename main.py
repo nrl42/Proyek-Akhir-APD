@@ -55,7 +55,7 @@ def main():
             register()
 
         elif pilihan == "3":
-            tampilkan_kategori_tiket()
+            tampilkan_kategori_tiket
 
         elif pilihan == "4":
             print("Terima Kasih")
