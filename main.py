@@ -9,9 +9,9 @@ from menu_admin import menu_admin
 
 def tampilkan_info_konser():
     konser = baca_data(file_konser)
-    print("\n====================")
+    print("\n=====================")
     print(" ", konser["judul"])
-    print("====================")
+    print("=====================")
     print("tanggal : ", konser["tanggal"])
     print("waktu :", konser["waktu"])
     print("lokasi :", konser["lokasi"])
