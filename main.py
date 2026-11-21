@@ -3,7 +3,8 @@ from database import baca_data, file_konser
 from bantuan import rupiah
 from auth import login, register
 from menu_user import menu_user
-from menu_staff import menu_admin, menu_petugas
+from menu_petugas import  menu_petugas
+from menu_admin import menu_admin
 
 
 def tampilkan_info_konser():

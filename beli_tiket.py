@@ -29,7 +29,7 @@ def input_jumlah(kategori_dipilih):
             return jumlah
 
             print("jumlah tidak valid maks 4 tiket ")
-
+    
 def hitung_diskon(jumlah, harga_awal):
     if jumlah >= 3 and jumlah <= 4:
         diskon = harga_awal * 10 // 100

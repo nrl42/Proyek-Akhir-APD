@@ -1,12 +1,12 @@
-from database import baca_data, file_tiket
-from bantuan import rupiah
+from database import baca_data,simpan_data, file_tiket, file_pembatalan
+from bantuan import rupiah, id_berikutnya
 from beli_tiket import beli_tiket
 
 
 def status_pemesanan(akun):
     daftar_tiket = baca_data(file_tiket)
 
-    print("\n===== STATUS PEMESANAN =====")
+    print("\n=====STATUS PEMESANAN=====")
     ada = False
     for tiket in daftar_tiket:
         if tiket["username"] == akun["username"]:
@@ -26,7 +26,7 @@ def status_pemesanan(akun):
 def cek_tiket():
     daftar_tiket = baca_data(file_tiket)
 
-    print("\n=== CEK TIKET ===")
+    print("\n=====CEK TIKET=====")
     while True:
         kode_unik = input("Masukkan kode unik (0 untuk kembali): ").strip().upper()
 
@@ -59,18 +59,66 @@ def riwayat_pembelian(akun):
             print(f"{nomor}. {tiket['kode_pesan']} | {tiket['kategori']} x {tiket['jumlah']} | {rupiah(tiket['total_bayar'])}")
 
     if nomor == 0:
-        print("Belum ada riwayat pembelian.")
+        print("Belum ada riwayat pembelian")
+
+def ajukan_pembatalan():
+    daftar_tiket = baca_data(file_tiket)
+    daftar_batal = baca_data(file_pembatalan)
+
+    print("\n=====AJUKAN PEMBATALAN TIKET=====")
+    bisa_dibatalkan = []
+    for tiket in daftar_tiket:
+        if(tiket["username"] == akun["username"] and tiket["status"] in ("menunggu verifikasi","lunas") and tiket["status_tiket"] != "used"):
+            bisa_dibatalkan.append(tiket)
+            print(f"{tiket['kode_pesanan']} | {tiket['kategori']} × {tiket['jumlah']} |"
+                f"{rupiah(tiket['total_bayar'])} | {tiket['status']}")
+        
+    if len(bisa_dibatalkan) == 0:
+        print("Tidak ada pesanan yang dibatalkan")
+        return
+
+    kode = input("masukkan kode pesanan( input 0 untuk kembali): ").strip().upper()
+    if kode == "0":
+        return
+
+    pesanan = None
+    for tiket in bisa_dibatalkan:
+        if tiket["kode_pesanan"] == kode:
+            pesanan = tiket
+    if pesanan is None:
+        print("maaf kode tidak valid")
+        return
+        
+    for b in daftar_batal:
+        if b["kode_pesanan"] == kode and b["status"] == "menunggu":
+            print("permintaan pembatalan untuk pesanan ini sudah diajukan")
+            return
+
+    alasan = ""
+    while alasan == "":
+        alasan = input("alasan pembatalan: ").strip()
+
+    daftar_batal.append({
+        "id": id_berikutnya(daftar_batal),
+        "kode_pesan": kode,
+        "username": akun["username"],
+        "alasan": alasan,
+        "status": "Menunggu"
+    })
+    simpan_data(file_tambahan, daftar_batal)
+    print("permintaan pembatalan terikirim menunggu persetujuan admin")
 
 
 def menu_user(akun):
     while True:
         print("\n=== MENU ===")
-        print("Halo,", akun["nama"])
+        print("Halo selamat datang,", akun["nama"])
         print("1.Beli Tiket")
         print("2.Status Pemesanan")
         print("3.Cek Tiket")
         print("4.Riwayat")
-        print("5.Logout")
+        print("5.ajukan_pembatalan")
+        print("6.Logout")
         menu = input("Pilih menu: ")
 
         if menu == "1":
@@ -81,6 +129,8 @@ def menu_user(akun):
             cek_tiket()
         elif menu == "4":
             riwayat_pembelian(akun)
+        elif menu == "6":
+            ajukan_pembatalan(akun)
         elif menu == "5":
             print("Berhasil logout.")
             break  

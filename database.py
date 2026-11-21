@@ -5,6 +5,10 @@ folder_data= "data"
 file_akun = "data/akun_user.json"
 file_tiket = "data/tiket.json"
 file_konser = "data/konser.json"
+file_diskon = "data/pembayaran.json"
+file_pembayaran = "data/pembayaran.json"
+file_pembatalan = "data/pembatalan.json"
+
 
 def baca_data(nama_file):
     try:
