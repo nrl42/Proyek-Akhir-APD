@@ -1,3 +1,3 @@
-def menu_admin(akun):
-    print("\n=== MENU ADMIN ===")
-    print("Selamat datang,", akun["nama"])
+def menu_admin(pengguna):
+    print(f"\n Menu ADMIN - {pengguna['nama']}")
+    input("(belum dibuat) tekan enter untuk kembali")
