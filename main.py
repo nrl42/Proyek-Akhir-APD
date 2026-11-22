@@ -35,7 +35,7 @@ def main():
     tampil_info = True
 
     while True:
-        if tampil_info:
+        if tampil_info: 
             tampilkan_info_konser()
             tampil_info = False
 

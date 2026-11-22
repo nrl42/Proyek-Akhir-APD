@@ -9,8 +9,8 @@ def login():
     i = 0
     while i != 3:
         print("\n=====LOGIN=====")
-        username = input("masukkan username anda: ")
-        password = input("masukkan password anda: ")
+        username = input("masukkan username anda: ").strip()
+        password = input("masukkan password anda: ").strip()
 
         akun_cocok = None
         for akun in daftar_akun:
@@ -21,8 +21,8 @@ def login():
             print("Selamat login berhasil")
             return akun_cocok
 
-        print("maaf login gagal username atau password salah")
         i = i + 1
+        print("maaf login gagal username atau password salah")
 
     print("gagal login 3 kali")
     return None
@@ -32,7 +32,7 @@ def register():
     print("\n=====REGISTER=====")
 
     while True:
-        username = input("username: ")
+        username = input("username: ").strip()
 
         sudah_terdaftar =  False
         for akun in daftar_akun:
@@ -46,10 +46,14 @@ def register():
         else:                        
             break
 
-    nama = input("masukkan nama anda :")
-    password = input("masukkan password anda : ")
-    no_hp = input("masukkan no HP anda :")
+    nama = input("masukkan nama anda :").strip()
+    password = input("masukkan password anda : ").strip()
+    no_hp = input("masukkan no HP anda :").strip()
 
+    if nama == "" or password == "" or no_hp == "":
+        print(" mohon maaf Data tidak lengkap")
+        return
+        
     akun_baru={
         "username": username,
         "password": password,

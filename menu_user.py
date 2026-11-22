@@ -1,7 +1,8 @@
 from database import baca_data,simpan_data, file_tiket, file_pembatalan
-from bantuan import rupiah, id_berikutnya
-from beli_tiket import beli_tiket
+from bantuan import rupiah, id_berikutnya, garis, waktu_sekarang
+from beli_tiket import beli_tiket, bayar_pesanan
 
+status_bisa_batal = ("menunggu pembayaran", "menunggu verifikasi", "lunas")
 
 def status_pemesanan(akun):
     daftar_tiket = baca_data(file_tiket)
@@ -22,6 +23,28 @@ def status_pemesanan(akun):
     if not ada:
         print("Belum ada pemesanan.")
 
+def bayar_pesanan_tertunda(akun):
+    daftar_tiket = baca_data(file_tiket)
+    print("\n=====BAYAR PESANAN=====")
+    Menunggu = [t for t in daftar_tiket if t["username"] == akun["username"] and t["status"] == "menunggu pembayaran"]
+
+    if len(menunggu) == 0:
+        print("tidak ada pesanan yang menunggu pemabayaran")
+        return
+
+    for t in menunggu:
+        print("tidak ada pesanan yang menunggu pembayaran")
+        return
+
+    kode = input("masukkan kode pesanan(0 untuk kembali) : ")
+    if kode == "0":
+        return
+
+    for t in menunggu:
+        if t["kode_pesanan"] == kode:
+            bayar_pesanan(kode)
+            return
+    print("kode pesan tidak valid")
 
 def cek_tiket():
     daftar_tiket = baca_data(file_tiket)
@@ -56,7 +79,7 @@ def riwayat_pembelian(akun):
     for tiket in daftar_tiket:
         if tiket["username"] == akun["username"] and tiket["status"] == "Lunas":
             nomor = nomor + 1
-            print(f"{nomor}. {tiket['kode_pesan']} | {tiket['kategori']} x {tiket['jumlah']} | {rupiah(tiket['total_bayar'])}")
+            print(f"{nomor}. {tiket['kode_pesan']} | {tiket['kategori']} x {tiket['jumlah']} | {rupiah(tiket['total_bayar'])} | kode unik: {tiket['kode_unik']}")
 
     if nomor == 0:
         print("Belum ada riwayat pembelian")
