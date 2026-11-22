@@ -6,19 +6,10 @@ from menu_petugas import menu_petugas
 from menu_admin import menu_admin
 
 
-def tampilkan_info_konser():
-    konser = baca_data(file_konser)
-    print("\n=====================")
-    print(" ", konser["judul"])
-    print("=====================")
-    print("tanggal :", konser["tanggal"])
-    print("waktu   :", konser["waktu"])
-    print("lokasi  :", konser["lokasi"])
 
 
 def tampilkan_kategori_tiket():
     konser = baca_data(file_konser)
-    tampilkan_info_konser()
     print("\n kategori tiket yang tersedia:")
     for k in konser["kategori"]:
         print(f"- {k['jenis']}: {rupiah(k['harga'])} (sisa kuota: {k['kuota']})")
@@ -36,12 +27,8 @@ def masuk_sesuai_role(akun):
 
 def main():
     siapkan_data()   
-    tampil_info = True
 
     while True:
-        if tampil_info:
-            tampilkan_info_konser()
-            tampil_info = False
 
         print("\n=====MENU TIKET KONSER HINDIA=====")
         print("1. Login")
