@@ -1,10 +1,8 @@
-
 from database import baca_data, simpan_data, file_akun
 
 
-
 def login():
-    daftar_akun= baca_data(file_akun)
+    daftar_akun = baca_data(file_akun)
 
     i = 0
     while i != 3:
@@ -22,10 +20,11 @@ def login():
             return akun_cocok
 
         i = i + 1
-        print("maaf login gagal username atau password salah")
+        print(f"maaf login gagal username atau password salah (percobaan {i}/3)")
 
     print("gagal login 3 kali")
     return None
+
 
 def register():
     daftar_akun = baca_data(file_akun)
@@ -34,27 +33,27 @@ def register():
     while True:
         username = input("username: ").strip()
 
-        sudah_terdaftar =  False
+        sudah_terdaftar = False
         for akun in daftar_akun:
             if akun["username"] == username:
                 sudah_terdaftar = True
 
         if username == "":
             print("Username tidak boleh kosong!")
-        elif sudah_terdaftar:           
+        elif sudah_terdaftar:
             print("Username sudah dipakai!")
-        else:                        
+        else:
             break
 
-    nama = input("masukkan nama anda :").strip()
+    nama = input("masukkan nama anda : ").strip()
     password = input("masukkan password anda : ").strip()
-    no_hp = input("masukkan no HP anda :").strip()
+    no_hp = input("masukkan no HP anda : ").strip()
 
     if nama == "" or password == "" or no_hp == "":
-        print(" mohon maaf Data tidak lengkap")
+        print("Data tidak lengkap, register dibatalkan.")
         return
-        
-    akun_baru={
+
+    akun_baru = {
         "username": username,
         "password": password,
         "nama": nama,

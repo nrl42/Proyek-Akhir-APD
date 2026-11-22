@@ -1,11 +1,12 @@
-from database import baca_data, simpan_data, file_akun, file_konser, file_tiket, file_pembayaran
-from bantuan import rupiah, tanya_ya_tidak
+from database import (baca_data, simpan_data, file_konser, file_akun, file_tiket)
+from bantuan import (rupiah, garis, input_wajib, tanya_ya_tidak, tampilkan_rincian,
+                    tampilkan_baris_pesanan)
 from beli_tiket import proses_pemesanan
-from transaksi import (cari_pesanan, aktifkan_tiket, tampilkan_daftar_transaksi,
-                        lihat_rincian_harga)
+from pesanan import cari_pesanan, pembayaran_terakhir
+from bantuan import buat_kode_unik
 
 
-def lihat_info_konser_dan_katalog_tiket():
+def LihatInfoKonserDanKatalogTiket():
     konser = baca_data(file_konser)
     print("\n=====INFO KONSER=====")
     print("Judul   :", konser["judul"])
@@ -17,101 +18,135 @@ def lihat_info_konser_dan_katalog_tiket():
         print(f"- {k['jenis']}: {rupiah(k['harga'])} (sisa kuota: {k['kuota']})")
 
 
-def lihat_data_pelanggan():
+def LihatDataPelanggan():
     daftar_akun = baca_data(file_akun)
+    pelanggan = [a for a in daftar_akun if a["role"].lower() == "user"]
+
     print("\n=====DATA PELANGGAN=====")
-    nomor = 0
-    for a in daftar_akun:
-        if a["role"] == "User":
-            nomor = nomor + 1
-            print(f"{nomor}. {a['username']} | {a['nama']} | {a['no_hp']}")
-    if nomor == 0:
-        print("Belum ada data pelanggan.")
+    if len(pelanggan) == 0:
+        print("Belum ada data pelanggan")
+        return
+
+    print(f"{'No':<4}{'Username':<15}{'Nama':<22}{'No HP':<15}")
+    garis(56)
+    for nomor, a in enumerate(pelanggan, start=1):
+        print(f"{nomor:<4}{a['username']:<15}{a['nama']:<22}{a['no_hp']:<15}")
 
 
-def buat_pemesanan_pelanggan():
-    daftar_akun = baca_data(file_akun)
-    print("\n=====BUAT PEMESANAN PELANGGAN=====")
-    username = input("Masukkan username pelanggan: ").strip()
+def BuatPemesananPelanggan():
+    print("\n=====BUAT PEMESANAN UNTUK PELANGGAN=====")
+    username = input("Masukkan username pelanggan (0 untuk kembali): ").strip()
+    if username == "0":
+        return
 
     pelanggan = None
-    for a in daftar_akun:
-        if a["username"] == username and a["role"] == "User":
+    for a in baca_data(file_akun):
+        if a["username"] == username and a["role"].lower() == "user":
             pelanggan = a
 
     if pelanggan is None:
-        print("Pelanggan tidak ditemukan.")
+        print("Pelanggan tidak ditemukan")
         return
 
     print("Pelanggan:", pelanggan["nama"])
     proses_pemesanan(pelanggan["username"])
 
 
-def periksa_pembayaran():
-    daftar_tiket = baca_data(file_tiket)
-    daftar_bayar = baca_data(file_pembayaran)
+def PeriksaPembayaran():
     print("\n=====PERIKSA PEMBAYARAN=====")
-    kode = input("Masukkan kode pemesanan: ").strip().upper()
+    kode = input("Masukkan kode pemesanan (0 untuk kembali): ").strip().upper()
+    if kode == "0":
+        return
+
+    daftar_tiket = baca_data(file_tiket)
+    pesanan = cari_pesanan(daftar_tiket, kode)
+    if pesanan is None:
+        print("Pemesanan tidak ditemukan")
+        return
+
+    bayar = pembayaran_terakhir(kode)
+    status_bayar = bayar["status"] if bayar is not None else "Menunggu Pembayaran"
+    print("Status pembayaran :", status_bayar)
+    print("Status pesanan    :", pesanan["status"])
+    print("Status tiket      :", pesanan["status_tiket"])
+
+    if status_bayar == "Terverifikasi":
+        if pesanan["status_tiket"] in ("Active", "Used") and pesanan["kode_unik"] != "":
+            print("Status tiket sudah diperbarui sebelumnya")
+        else:
+            pesanan["status_tiket"] = "Active"
+            pesanan["kode_unik"] = buat_kode_unik(daftar_tiket)
+            simpan_data(file_tiket, daftar_tiket)
+            print("Pembayaran terverifikasi, status tiket Active, kode unik:", pesanan["kode_unik"])
+    elif status_bayar == "Menunggu Verifikasi":
+        print("Pembayaran belum terverifikasi (menunggu admin), status tiket tidak diubah")
+    elif status_bayar == "Menunggu Pembayaran":
+        print("Pelanggan belum membayar, status tiket tidak diubah")
+    else:
+        print("Pembayaran ditolak, status tiket tidak diubah")
+
+
+def LihatRincianHarga():
+    daftar_tiket = baca_data(file_tiket)
+    print("\n=====RINCIAN HARGA & DISKON=====")
+    if len(daftar_tiket) == 0:
+        print("Belum ada data pemesanan")
+        return
+
+    for nomor, t in enumerate(daftar_tiket, start=1):
+        print(f"{nomor}. {t['kode_pesan']} | {t['username']} | {t['kategori']} x {t['jumlah']}")
+
+    kode = input("Masukkan kode pemesanan (0 untuk kembali): ").strip().upper()
+    if kode == "0":
+        return
 
     pesanan = cari_pesanan(daftar_tiket, kode)
     if pesanan is None:
-        print("Pemesanan tidak ditemukan.")
+        print("kodePemesanan tidak ditemukan")
         return
-
-    bayar = None
-    for b in daftar_bayar:
-        if b["kode_pesan"] == kode:
-            bayar = b
-
-    if bayar is None or bayar["status"] == "Menunggu Verifikasi":
-        print("Pembayaran belum terverifikasi, status tiket tidak diubah.")
-        return
-    if bayar["status"] == "Ditolak" or bayar["status"] == "Dibatalkan":
-        print("Pembayaran", bayar["status"].lower(), "- tiket tidak dapat diaktifkan.")
-        return
-
-    # status pembayaran = Terverifikasi
-    if pesanan["status_tiket"] == "Active" or pesanan["status_tiket"] == "Used":
-        print("Status tiket sudah diperbarui sebelumnya.")
-        return
-
-    pesanan["status"] = "Lunas"
-    aktifkan_tiket(pesanan, daftar_tiket)
-    simpan_data(file_tiket, daftar_tiket)
-    print("Pembayaran terverifikasi, status tiket Active")
-    print("Kode unik:", pesanan["kode_unik"])
+    tampilkan_rincian(pesanan)
 
 
-def kode_unik():
+def KodeUnik():
     """Validasi tiket di pintu masuk: Active -> Used."""
-    daftar_tiket = baca_data(file_tiket)
-    print("\n=====CEK KODE UNIK (PINTU MASUK)=====")
-    kode = input("Masukkan kode unik: ").strip().upper()
+    print("\n=====VALIDASI KODE UNIK TIKET=====")
+    kode_unik = input("Masukkan kode unik (0 untuk kembali): ").strip().upper()
+    if kode_unik == "0":
+        return
 
-    tiket_ketemu = None
+    daftar_tiket = baca_data(file_tiket)
+    ditemukan = None
     for t in daftar_tiket:
-        if t["kode_unik"] == kode and kode != "":
-            tiket_ketemu = t
+        if t["kode_unik"] == kode_unik and kode_unik != "":
+            ditemukan = t
 
-    if tiket_ketemu is None:
-        print("Tiket tidak valid.")
-        return
-    if tiket_ketemu["status_tiket"] != "Active":
-        print("Tiket sudah digunakan / tidak aktif. Status:", tiket_ketemu["status_tiket"])
-        return
-
-    tiket_ketemu["status_tiket"] = "Used"
-    simpan_data(file_tiket, daftar_tiket)
-    print("Tiket valid, silakan masuk.")
-    print("Kategori:", tiket_ketemu["kategori"], "x", tiket_ketemu["jumlah"])
+    if ditemukan is None:
+        print("Tiket tidak valid")
+    elif ditemukan["status_tiket"] != "Active":
+        print("Tiket sudah digunakan / tidak aktif (status:", ditemukan["status_tiket"] + ")")
+    else:
+        ditemukan["status_tiket"] = "Used"
+        simpan_data(file_tiket, daftar_tiket)
+        print("Tiket valid, silakan masuk")
 
 
-def lihat_data_transaksi():
+def LihatDataTransaksi():
     daftar_tiket = baca_data(file_tiket)
+    print("\n=====DATA TRANSAKSI=====")
     if len(daftar_tiket) == 0:
-        print("\nBelum ada transaksi.")
+        print("Belum ada transaksi")
         return
-    tampilkan_daftar_transaksi(daftar_tiket)
+    for t in daftar_tiket:
+        tampilkan_baris_pesanan(t)
+
+
+def Logout():
+    """Mengembalikan True kalau petugas benar-benar logout."""
+    if tanya_ya_tidak("Yakin ingin logout?"):
+        print("Logout berhasil")
+        return True
+    print("Logout dibatalkan")
+    return False
 
 
 def menu_petugas(akun):
@@ -120,32 +155,30 @@ def menu_petugas(akun):
         print("Selamat datang,", akun["nama"])
         print("1. Lihat info konser dan katalog tiket")
         print("2. Lihat data pelanggan")
-        print("3. Bantu buat pemesanan tiket pelanggan")
+        print("3. Bantu buat pemesanan pelanggan")
         print("4. Periksa status pembayaran dan ubah status tiket")
-        print("5. Lihat rincian harga dan diskon pembelian tiket")
-        print("6. Cek kode unik tiket")
+        print("5. Lihat rincian harga dan diskon")
+        print("6. Validasi kode unik tiket")
         print("7. Lihat data transaksi")
         print("8. Logout")
-        menu = input("Pilih menu: ")
+        menu = input("Pilih menu: ").strip()
 
         if menu == "1":
-            lihat_info_konser_dan_katalog_tiket()
+            LihatInfoKonserDanKatalogTiket()
         elif menu == "2":
-            lihat_data_pelanggan()
+            LihatDataPelanggan()
         elif menu == "3":
-            buat_pemesanan_pelanggan()
+            BuatPemesananPelanggan()
         elif menu == "4":
-            periksa_pembayaran()
+            PeriksaPembayaran()
         elif menu == "5":
-            lihat_rincian_harga()
+            LihatRincianHarga()
         elif menu == "6":
-            kode_unik()
+            KodeUnik()
         elif menu == "7":
-            lihat_data_transaksi()
+            LihatDataTransaksi()
         elif menu == "8":
-            if tanya_ya_tidak("Yakin ingin logout?"):
-                print("Logout berhasil")
+            if Logout():
                 break
-            print("Logout dibatalkan")
         else:
             print("Menu tidak valid")
