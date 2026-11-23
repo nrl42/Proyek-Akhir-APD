@@ -5,9 +5,6 @@ from menu_user import menu_user
 from menu_petugas import menu_petugas
 from menu_admin import menu_admin
 
-
-
-
 def tampilkan_kategori_tiket():
     konser = baca_data(file_konser)
     print("\n kategori tiket yang tersedia:")

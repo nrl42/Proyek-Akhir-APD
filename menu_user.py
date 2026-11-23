@@ -5,7 +5,6 @@ from beli_tiket import beli_tiket, bayar_pesanan
 
 STATUS_BISA_BATAL = ("Menunggu Pembayaran", "Menunggu Verifikasi", "Lunas")
 
-
 def status_pemesanan(akun):
     daftar_tiket = baca_data(file_tiket)
 

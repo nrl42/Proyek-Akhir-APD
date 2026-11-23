@@ -3,13 +3,11 @@ from database import (baca_data, simpan_data, file_tiket, file_konser,
 from bantuan import (buat_kode_pesanan, buat_kode_unik, hitung_diskon,
                     id_berikutnya, waktu_sekarang, MAKS_TIKET)
 
-
 def cari_pesanan(daftar, kode):
     for p in daftar:
         if p["kode_pesan"] == kode:
             return p
     return None
-
 
 def cari_kategori(konser, nomor):
     for k in konser["kategori"]:

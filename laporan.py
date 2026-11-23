@@ -80,7 +80,6 @@ def tampilkan_diagram_batang(hasil, tampilkan_jendela=True):
 
 
 def simpan_laporan_teks(hasil, pembeli):
-    """Cetak/unduh laporan ke file teks."""
     with open(file_laporan, "w", encoding="utf-8") as f:
         f.write("LAPORAN PENJUALAN TIKET KONSER HINDIA\n")
         f.write("Dibuat: " + waktu_sekarang() + "\n\n")

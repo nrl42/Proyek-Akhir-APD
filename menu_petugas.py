@@ -108,7 +108,6 @@ def LihatRincianHarga():
 
 
 def KodeUnik():
-    """Validasi tiket di pintu masuk: Active -> Used."""
     print("\n=====VALIDASI KODE UNIK TIKET=====")
     kode_unik = input("Masukkan kode unik (0 untuk kembali): ").strip().upper()
     if kode_unik == "0":
@@ -141,7 +140,6 @@ def LihatDataTransaksi():
 
 
 def Logout():
-    """Mengembalikan True kalau petugas benar-benar logout."""
     if tanya_ya_tidak("Yakin ingin logout?"):
         print("Logout berhasil")
         return True

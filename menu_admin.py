@@ -8,9 +8,7 @@ from pesanan import (cari_pesanan, pembayaran_terakhir, setujui_pembayaran,
 from laporan import (hitung_penjualan, tampilkan_laporan, tampilkan_diagram_batang,
                     simpan_laporan_teks, file_grafik, file_laporan)
 
-ROLE_VALID = ("Admin", "Petugas", "User")   # tuple
-
-
+ROLE_VALID = ("Admin", "Petugas", "User")
 
 def tampilkan_akun(daftar_akun):
     print(f"\n{'No':<4}{'Username':<15}{'Nama':<20}{'No HP':<15}{'Role':<8}")
@@ -53,7 +51,7 @@ def kelolaAkun(akun_admin):
             print("Akun baru berhasil dibuat")
 
         elif pilih == "2":
-            nomor = input_angka("Nomor akun yang diubah: ")
+            nomor = input_angka("id akun yang diubah: ")
             if not 1 <= nomor <= len(daftar_akun):
                 print("Pengguna tidak valid")
                 continue
@@ -74,7 +72,7 @@ def kelolaAkun(akun_admin):
             print("Data pengguna berhasil diubah")
 
         elif pilih == "3":
-            nomor = input_angka("Nomor akun yang dihapus: ")
+            nomor = input_angka("id akun yang dihapus: ")
             if not 1 <= nomor <= len(daftar_akun):
                 print("Pengguna tidak valid")
                 continue
@@ -87,10 +85,10 @@ def kelolaAkun(akun_admin):
                 print("Akun berhasil dihapus")
 
         elif pilih == "4":
+            print("Logout berhasil")
             return
         else:
             print("Inputan tidak valid")
-
 
 
 def kelolaInformasiKonser():
@@ -278,8 +276,6 @@ def kelolaDiskon():
         else:
             print("Pilihan tidak valid")
 
-
-
 def lihatDataPelanggan():
     pelanggan = [a for a in baca_data(file_akun) if a["role"].lower() == "user"]
     print("\n=====DATA PELANGGAN=====")
@@ -466,9 +462,6 @@ def lihatLaporanPenjualan():
         print("Laporan tersimpan di:", file_laporan)
 
 
-# =====================================================================
-# MENU ADMIN
-# =====================================================================
 def menu_admin(akun):
     while True:
         print("\n=== MENU ADMIN ===")
