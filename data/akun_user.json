@@ -21,10 +21,17 @@
         "role": "User"
     },
     {
-        "username": "nurfadila",
-        "password": "dila123",
-        "nama": "nurfadila ariyanti",
-        "no_hp": "081234567859",
+        "username": "dilla",
+        "password": "dilla123",
+        "nama": "nur fadilla",
+        "no_hp": "081258589595",
+        "role": "Petugas"
+    },
+    {
+        "username": "nuyul",
+        "password": "nuy123",
+        "nama": "nuy",
+        "no_hp": "081221212222",
         "role": "User"
     }
 ]

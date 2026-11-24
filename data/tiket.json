@@ -1,26 +1,158 @@
-{
-    "judul": "Konser Hindia",
-    "tanggal": "20 Desember 2026",
-    "waktu": "19.00 WITA",
-    "lokasi": "Isi sesuai soal",
-    "kategori": [
-        {
-            "nomor": 1,
-            "jenis": "Reguler",
-            "harga": 100000,
-            "kuota": 100
-        },
-        {
-            "nomor": 2,
-            "jenis": "VIP",
-            "harga": 150000,
-            "kuota": 50
-        },
-        {
-            "nomor": 3,
-            "jenis": "VVIP",
-            "harga": 200000,
-            "kuota": 20
+[
+    {
+        "kode_pesan": "PSN1630",
+        "username": "nurul",
+        "kategori": "Reguler",
+        "jumlah": 2,
+        "harga_awal": 100000,
+        "diskon": 5000,
+        "total_bayar": 95000,
+        "status": "Dibatalkan",
+        "kode_unik": "",
+        "status_tiket": "-",
+        "waktu": "2026-11-23 18:49:26"
+    },
+    {
+        "kode_pesan": "PSN1985",
+        "username": "duan",
+        "kategori": "VIP",
+        "jumlah": 1,
+        "harga_awal": 100000,
+        "diskon": 0,
+        "total_bayar": 100000,
+        "status": "Dibatalkan",
+        "kode_unik": "",
+        "status_tiket": "-",
+        "waktu": "2026-11-24 02:16:46"
+    },
+    {
+        "kode_pesan": "PSN1182",
+        "username": "nurul",
+        "kategori": "VVIP",
+        "jumlah": 1,
+        "harga_awal": 150000,
+        "diskon": 0,
+        "total_bayar": 150000,
+        "status": "Dibatalkan",
+        "kode_unik": "",
+        "status_tiket": "-",
+        "waktu": "2026-11-24 12:59:24"
+    },
+    {
+        "kode_pesan": "PSN4325",
+        "username": "puja",
+        "kategori": "Reguler",
+        "jumlah": 2,
+        "harga_awal": 100000,
+        "diskon": 5000,
+        "total_bayar": 95000,
+        "status": "Dibatalkan",
+        "kode_unik": "",
+        "status_tiket": "-",
+        "waktu": "2026-11-24 19:21:48"
+    },
+    {
+        "kode_pesan": "PSN7072",
+        "username": "nurul",
+        "kategori": "VIP",
+        "jumlah": 2,
+        "harga_awal": 200000,
+        "diskon": 10000,
+        "total_bayar": 190000,
+        "status": "Dibatalkan",
+        "kode_unik": "",
+        "status_tiket": "-",
+        "waktu": "2026-11-24 20:39:02"
+    },
+    {
+        "kode_pesan": "PSN5155",
+        "username": "nurul",
+        "kategori": "VIP",
+        "jumlah": 3,
+        "harga_awal": 300000,
+        "diskon": 30000,
+        "total_bayar": 270000,
+        "status": "Dibatalkan",
+        "kode_unik": "",
+        "status_tiket": "-",
+        "waktu": "2026-11-24 20:40:45",
+        "data_diri": {
+            "nama_pemesan": "nurul",
+            "no_hp": "081222222222",
+            "email": "nurul123@gmail.com",
+            "pemilik_tiket": [
+                "dila",
+                "nurul",
+                "puja"
+            ]
         }
-    ]
-}
+    },
+    {
+        "kode_pesan": "PSN1334",
+        "username": "nurul",
+        "kategori": "VIP",
+        "jumlah": 3,
+        "harga_awal": 300000,
+        "diskon": 30000,
+        "total_bayar": 270000,
+        "status": "Lunas",
+        "kode_unik": "TKT-WP30DD",
+        "status_tiket": "Active",
+        "waktu": "2026-11-24 20:53:21",
+        "data_diri": {
+            "nama_pemesan": "nurul",
+            "no_hp": "081222222222",
+            "email": "nurul123@gmail.com",
+            "pemilik_tiket": [
+                "dilla",
+                "nurul",
+                "puja"
+            ]
+        }
+    },
+    {
+        "kode_pesan": "PSN3344",
+        "username": "nurul",
+        "kategori": "Reguler",
+        "jumlah": 3,
+        "harga_awal": 150000,
+        "diskon": 15000,
+        "total_bayar": 135000,
+        "status": "Dibatalkan",
+        "kode_unik": "TKT-9PG8SV",
+        "status_tiket": "-",
+        "waktu": "2026-11-25 02:36:38",
+        "data_diri": {
+            "nama_pemesan": "nurul",
+            "no_hp": "0812341232121",
+            "email": "abcd@gmail.com",
+            "pemilik_tiket": [
+                "keihsa",
+                "cila",
+                "duan"
+            ]
+        }
+    },
+    {
+        "kode_pesan": "PSN1255",
+        "username": "dilla",
+        "kategori": "Reguler",
+        "jumlah": 2,
+        "harga_awal": 100000,
+        "diskon": 5000,
+        "total_bayar": 95000,
+        "status": "Dibatalkan",
+        "kode_unik": "",
+        "status_tiket": "-",
+        "waktu": "2026-11-25 03:07:41",
+        "data_diri": {
+            "nama_pemesan": "dilla",
+            "no_hp": "081234213212",
+            "email": "usdh@gmail.com",
+            "pemilik_tiket": [
+                "hihu",
+                "yoi"
+            ]
+        }
+    }
+]

@@ -1,124 +1,69 @@
-from database import baca_data, simpan_data, file_tiket, file_konser
-from bantuan import rupiah, buat_kode_pesanan, buat_kode_unik
+from database import baca_data, file_konser
+from bantuan import (clear, rupiah, input_angka, tanya_ya_tidak, tampilkan_rincian, hitung_diskon, persen_diskon, MAKS_TIKET)
+from pesanan import cari_kategori, buat_pesanan
 
-
-def input_angka(pesan):
-    try:
-        return int(input(pesan))
-    except ValueError:
-        print("input harus berupa angka")
-        return 0
+from pembayaran import bayar_pesanan
 
 
 def pilih_kategori(konser):
     while True:
-        print("\n=====Pilih kategori tiket=====")
+        clear()
+        print("=====Pilih kategori tiket=====")
         for k in konser["kategori"]:
-            print(f"{k['nomor']}. {k['jenis']} {rupiah(int(k['harga']))} (sisa kuota: {k['kuota']})")
+            print(f"{k['nomor']}. {k['jenis']} {rupiah(k['harga'])} (sisa kuota: {k['kuota']})")
+        print("0. Kembali")
 
-        kategori = input_angka("Input kategori : ")
+        nomor = input_angka("input kategori : ")
+        if nomor == 0:
+            return None
 
-        for k in konser["kategori"]:
-            if k["nomor"] == kategori:
-                if k["kuota"] < 1:
-                    print("Maaf, kuota kategori ini sudah habis")
-                    break
-                return k
-        else:
-            print("Maaf, kategori tidak valid")
+        kategori = cari_kategori(konser, nomor)
+        if kategori is not None:
+            return kategori
+
+        print("maaf kategori tidak valid")
 
 
 def input_jumlah(kategori_dipilih):
     while True:
-        jumlah = input_angka("Input jumlah tiket: ")
-
-        if 1 <= jumlah <= 4 and jumlah <= kategori_dipilih["kuota"]:
+        jumlah = input_angka(f"Input jumlah tiket (maks {MAKS_TIKET}, 0 untuk kembali): ")
+        if jumlah == 0:
+            return None
+        if 1 <= jumlah <= MAKS_TIKET and jumlah <= kategori_dipilih["kuota"]:
             return jumlah
-
-        print("jumlah tidak valid maksimal 4 tiket dan tidak boleh melibihi kuota")
-
-
-def hitung_diskon(jumlah, harga_awal):
-    if 3 <= jumlah <= 4:
-        diskon = harga_awal * 10 // 100
-    elif jumlah == 2:
-        diskon = harga_awal * 5 // 100
-    else:
-        diskon = 0
-    return diskon
+        print(f"jumlah tidak valid (maks {MAKS_TIKET} tiket) atau kuota tidak cukup")
 
 
-def tampilkan_rincian(pesanan):
-    print("\n=====RINCIAN PEMESANAN=====")
-    print("Kategori   :", pesanan["kategori"])
-    print("Jumlah     :", pesanan["jumlah"])
-    print("Harga awal :", rupiah(pesanan["harga_awal"]))
-    print("Diskon     :", rupiah(pesanan["diskon"]))
-    print("Total bayar:", rupiah(pesanan["total_bayar"]))
-
-
-def tampilkan_struk(pesanan):
-    print("\n===============")
-    print("STRUK PEMESANAN")
-    print("===============")
-    print("Kode pesan :", pesanan["kode_pesan"])
-    print("Kode unik  :", pesanan["kode_unik"])
-    print("Pemesan    :", pesanan["username"])
-    print("Kategori   :", pesanan["kategori"])
-    print("Jumlah     :", pesanan["jumlah"])
-    print("Harga awal :", rupiah(pesanan["harga_awal"]))
-    print("Diskon     :", rupiah(pesanan["diskon"]))
-    print("Total bayar:", rupiah(pesanan["total_bayar"]))
-    print("Status     :", pesanan["status"])
-    print("===============")
-
-
-def beli_tiket(akun):
+def proses_pemesanan(username):
     konser = baca_data(file_konser)
-    daftar_tiket = baca_data(file_tiket)
-
 
     kategori_dipilih = pilih_kategori(konser)
+    if kategori_dipilih is None:
+        return
     jumlah = input_jumlah(kategori_dipilih)
+    if jumlah is None:
+        return
 
+    harga_awal = kategori_dipilih["harga"] * jumlah
+    print(f"\nDiskon yang berlaku: {persen_diskon(jumlah)}% "
+        f"({rupiah(hitung_diskon(jumlah, harga_awal))})")
 
-    harga_awal = int(kategori_dipilih["harga"]) * jumlah
-    diskon = hitung_diskon(jumlah, harga_awal)
-    total_bayar = harga_awal - diskon
+    try:
+        pesanan = buat_pesanan(username, kategori_dipilih["nomor"], jumlah)
+    except ValueError as error:
+        print("Pemesanan gagal:", error)
+        return
 
-    pesanan = {
-        "kode_pesan": buat_kode_pesanan(daftar_tiket),
-        "username": akun["username"],
-        "kategori": kategori_dipilih["jenis"],
-        "jumlah": jumlah,
-        "harga_awal": harga_awal,
-        "diskon": diskon,
-        "total_bayar": total_bayar,
-        "status": "Menunggu Pembayaran",
-        "kode_unik": ""
-    }
+    clear()
     tampilkan_rincian(pesanan)
-
-    daftar_tiket.append(pesanan)
-    simpan_data(file_tiket, daftar_tiket)
-
     print("\nKode pesan Anda:", pesanan["kode_pesan"])
     print("Status:", pesanan["status"])
 
-
-    print("\n=====PEMBAYARAN=====")
-    while True:
-        nominal = input_angka("Masukkan nominal pembayaran (" + rupiah(total_bayar) + "): ")
-        if nominal == total_bayar:
-            break
-        print("Nominal tidak sesuai dengan total bayar Anda")
-
-    pesanan["kode_unik"] = buat_kode_unik()
-    pesanan["status"] = "Lunas"
-    simpan_data(file_tiket, daftar_tiket)
+    if tanya_ya_tidak("Bayar sekarang?"):
+        bayar_pesanan(pesanan["kode_pesan"])
+    else:
+        print("Pesanan bisa dibayar nanti lewat menu Bayar Pesanan.")
 
 
-    kategori_dipilih["kuota"] -= jumlah
-    simpan_data(file_konser, konser)
-
-    tampilkan_struk(pesanan)
+def beli_tiket(akun):
+    proses_pemesanan(akun["username"])

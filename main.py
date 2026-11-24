@@ -1,70 +1,69 @@
 from database import baca_data, file_konser
 from bantuan import rupiah
+from database import baca_data, file_konser, siapkan_data
+from bantuan import rupiah, clear, tekan_enter
 from auth import login, register
 from menu_user import menu_user
-from menu_petugas import  menu_petugas
+from menu_petugas import menu_petugas
 from menu_admin import menu_admin
 
 
-def tampilkan_info_konser():
-    konser = baca_data(file_konser) 
-    print("\n====================")
-    konser = baca_data(file_konser)
-    print("\n=====================")
-    print(" ", konser["judul"])
-    print("=====================")
-    print("tanggal : ", konser["tanggal"])
-    print("waktu :", konser["waktu"])
-    print("lokasi :", konser["lokasi"])
-
 def tampilkan_kategori_tiket():
+    clear()
     konser = baca_data(file_konser)
-    tampilkan_info_konser()
-    print("\n kategori tiket yang tesedia:")
+    print("=====KONSER TERSEDIA=====")
+    print("Judul   :", konser["judul"])
+    print("Tanggal :", konser["tanggal"])
+    print("Waktu   :", konser["waktu"])
+    print("Lokasi  :", konser["lokasi"])
+    print("\nKategori tiket:")
     for k in konser["kategori"]:
-        print(f"-{k['jenis']}: {rupiah(k['harga'])} (sisa kuota:{k['kuota']})")
+        print(f"- {k['jenis']}: {rupiah(k['harga'])} (sisa kuota: {k['kuota']})")
+
 
 def masuk_sesuai_role(akun):
-    if akun["role"] == "admin":
+    role = akun["role"].lower()
+    if role == "admin":
         menu_admin(akun)
-    elif akun["role"] == "petugas":
+    elif role == "petugas":
         menu_petugas(akun)
     else:
         menu_user(akun)
 
+
 def main():
-    tampil_info = True
+    siapkan_data()
 
     while True:
-        if tampil_info:
-            tampilkan_info_konser()
-            tampil_info = False
+        clear()
+        print("=====MENU TIKET KONSER HINDIA=====")
+        print("1. Login")
+        print("2. Register")
+        print("3. Konser tersedia")
+        print("4. Keluar")
 
-        print("\n=====MENU TIKET KONSER HINDIA=====")
-        print("1. login")
-        print("2. register")
-        print("3. konser tersedia")
-        print("4. logout")
-
-        pilihan = input("pilihan: ")
+        pilihan = input("pilihan: ").strip()
 
         if pilihan == "1":
             akun = login()
             if akun is not None:
                 masuk_sesuai_role(akun)
+            else:
+                tekan_enter()
         elif pilihan == "2":
             register()
-
+            tekan_enter()
         elif pilihan == "3":
-            tampilkan_kategori_tiket
-
+            tampilkan_kategori_tiket()
+            tekan_enter()
         elif pilihan == "4":
+            clear()
             print("Terima Kasih")
             break
-
         else:
             print("pilihan tidak valid")
+            tekan_enter()
 
 
-if __name__ == "__main__" :
+if __name__ == "__main__":
     main()

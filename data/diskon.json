@@ -5,12 +5,12 @@
         "min_tiket": 2,
         "maks_tiket": 2,
         "persen": 5
-    },  
+    },
     {
         "id": 2,
         "nama": "Diskon 3-4 tiket",
         "min_tiket": 3,
         "maks_tiket": 4,
         "persen": 10
-    }  
+    }
 ]
