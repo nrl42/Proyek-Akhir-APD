@@ -1,13 +1,14 @@
-from database import baca_data, file_tiket, file_konser
-from bantuan import (rupiah, input_angka, tanya_ya_tidak, tampilkan_rincian,
-                    tampilkan_struk, hitung_diskon, persen_diskon, MAKS_TIKET)
-from pesanan import (cari_kategori, cari_pesanan, buat_pesanan,
-                    kirim_pembayaran)
+from database import baca_data, file_konser
+from bantuan import (clear, rupiah, input_angka, tanya_ya_tidak, tampilkan_rincian, hitung_diskon, persen_diskon, MAKS_TIKET)
+from pesanan import cari_kategori, buat_pesanan
+
+from pembayaran import bayar_pesanan
 
 
 def pilih_kategori(konser):
     while True:
-        print("\n=====Pilih kategori tiket=====")
+        clear()
+        print("=====Pilih kategori tiket=====")
         for k in konser["kategori"]:
             print(f"{k['nomor']}. {k['jenis']} {rupiah(k['harga'])} (sisa kuota: {k['kuota']})")
         print("0. Kembali")
@@ -33,29 +34,6 @@ def input_jumlah(kategori_dipilih):
         print(f"jumlah tidak valid (maks {MAKS_TIKET} tiket) atau kuota tidak cukup")
 
 
-def bayar_pesanan(kode):
-    daftar_tiket = baca_data(file_tiket)
-    pesanan = cari_pesanan(daftar_tiket, kode)
-    total_bayar = pesanan["total_bayar"]
-
-    print("\n=====PEMBAYARAN=====")
-    while True:
-        nominal = input_angka("Masukkan nominal pembayaran (" + rupiah(total_bayar)
-                            + ", 0 untuk bayar nanti): ")
-        if nominal == 0:
-            print("Pembayaran ditunda. Pesanan bisa dibayar lewat menu Bayar Pesanan.")
-            return
-        try:
-            kirim_pembayaran(kode, nominal)
-            break
-        except ValueError as error:
-            print(error)
-
-    print("Pembayaran terkirim, menunggu verifikasi admin.")
-    pesanan = cari_pesanan(baca_data(file_tiket), kode)
-    tampilkan_struk(pesanan)
-
-
 def proses_pemesanan(username):
     konser = baca_data(file_konser)
 
@@ -76,12 +54,15 @@ def proses_pemesanan(username):
         print("Pemesanan gagal:", error)
         return
 
+    clear()
     tampilkan_rincian(pesanan)
     print("\nKode pesan Anda:", pesanan["kode_pesan"])
     print("Status:", pesanan["status"])
 
     if tanya_ya_tidak("Bayar sekarang?"):
         bayar_pesanan(pesanan["kode_pesan"])
+    else:
+        print("Pesanan bisa dibayar nanti lewat menu Bayar Pesanan.")
 
 
 def beli_tiket(akun):

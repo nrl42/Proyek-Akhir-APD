@@ -19,5 +19,40 @@
         "nama": "nurul azizah",
         "no_hp": "081234329592",
         "role": "User"
+    },
+    {
+        "username": "duan",
+        "password": "duan123",
+        "nama": "riduan khairy",
+        "no_hp": "081234355324",
+        "role": "User"
+    },
+    {
+        "username": "dilla",
+        "password": "anjing",
+        "nama": "dilla123",
+        "no_hp": "081111111111",
+        "role": "User"
+    },
+    {
+        "username": "nurfadilla",
+        "password": "dilla123",
+        "nama": "dilla",
+        "no_hp": "081258585858",
+        "role": "User"
+    },
+    {
+        "username": "puja",
+        "password": "puja123",
+        "nama": "afuza lee",
+        "no_hp": "081234564325",
+        "role": "User"
+    },
+    {
+        "username": "gian",
+        "password": "gian123",
+        "nama": "gian anata",
+        "no_hp": "082112122121",
+        "role": "User"
     }
 ]

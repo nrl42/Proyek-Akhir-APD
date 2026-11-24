@@ -9,7 +9,7 @@ MAKS_TIKET = 4
 
 
 def clear():
-    os.system('cls || clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def garis(panjang=40, simbol="-"):
@@ -137,3 +137,45 @@ def tampilkan_struk(pesanan):
 def tampilkan_baris_pesanan(p):
     print(f"{p['kode_pesan']} | {p['username']} | {p['kategori']} x {p['jumlah']} | "
         f"{rupiah(p['total_bayar'])} | {p['status']}")
+
+
+
+def tekan_enter():
+    input("\nTekan Enter untuk lanjut...")
+
+
+def input_password(pesan="masukkan password anda: "):
+    try:
+        import pwinput
+        return pwinput.pwinput(pesan, mask="*").strip()
+    except ImportError:
+        import getpass
+        return getpass.getpass(pesan).strip()
+
+
+def tabel(kolom, baris, judul=None):
+    if judul:
+        print("\n=====" + judul + "=====")
+    try:
+        from prettytable import PrettyTable
+        t = PrettyTable(list(kolom))
+        t.align = "l"
+        for b in baris:
+            t.add_row([str(sel) for sel in b])
+        print(t)
+    except ImportError:
+        lebar = [len(str(k)) for k in kolom]
+        for b in baris:
+            for i, sel in enumerate(b):
+                lebar[i] = max(lebar[i], len(str(sel)))
+        pemisah = "+" + "+".join("-" * (w + 2) for w in lebar) + "+"
+
+        def cetak(isi):
+            print("| " + " | ".join(str(s).ljust(w) for s, w in zip(isi, lebar)) + " |")
+
+        print(pemisah)
+        cetak(kolom)
+        print(pemisah)
+        for b in baris:
+            cetak(b)
+        print(pemisah)
