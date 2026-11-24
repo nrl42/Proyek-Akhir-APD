@@ -1,0 +1,10 @@
+LAPORAN PENJUALAN TIKET KONSER HINDIA
+Dibuat: 2026-11-25 02:53:18
+
+Reguler: 0 tiket, Rp0
+VIP: 3 tiket, Rp270.000
+VVIP: 0 tiket, Rp0
+
+Total tiket   : 3
+Total pendapatan: Rp270.000
+Jumlah pembeli: 1

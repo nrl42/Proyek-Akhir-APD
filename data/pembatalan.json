@@ -6,5 +6,13 @@
         "alasan": "sibuk",
         "waktu": "2026-11-23 19:03:10",
         "status": "Menunggu"
+    },
+    {
+        "id": 2,
+        "kode_pesan": "PSN3344",
+        "username": "nurul",
+        "alasan": "tidak bisa datang",
+        "waktu": "2026-11-25 02:40:54",
+        "status": "Disetujui"
     }
 ]
