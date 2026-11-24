@@ -19,5 +19,12 @@
         "nama": "nurul azizah",
         "no_hp": "081234329592",
         "role": "User"
+    },
+    {
+        "username": "nurfadila",
+        "password": "dila123",
+        "nama": "nurfadila ariyanti",
+        "no_hp": "081234567859",
+        "role": "User"
     }
 ]
