@@ -38,13 +38,15 @@
         "username": "gian",
         "password": "gian123",
         "nama": "gian anata",
-        "no_hp": "082112122121"
+        "no_hp": "082112122121",
+        "role" : "user"
     },
     {
         "username": "nurfadila",
         "password": "dila123",
         "nama": "nurfadila ariyanti",
-        "no_hp": "081234567859"
+        "no_hp": "081234567859",
+        "role": "user"
     },
     {
         "username": "dilla",

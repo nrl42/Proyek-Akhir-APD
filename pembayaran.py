@@ -1,8 +1,7 @@
 from datetime import datetime, timedelta
-
 from database import baca_data, simpan_data, file_tiket, file_pembayaran
 from bantuan import (clear, rupiah, input_angka, input_wajib, tampilkan_struk, tabel, tekan_enter,
-                     id_berikutnya, waktu_sekarang, cetak_judul, sukses, gagal, peringatan, info)
+id_berikutnya, waktu_sekarang, cetak_judul, sukses, gagal, peringatan, info)
 from pesanan import cari_pesanan, setujui_pembayaran, batalkan_pesanan
 
 METODE_PEMBAYARAN = ("Transfer BCA",)
@@ -39,7 +38,7 @@ def ambil_pesanan_aktif(kode):
     """Ambil pesanan yang masih boleh dibayar, atau None (dengan pesan alasannya)."""
     if kode in batalkan_kadaluarsa():
         gagal(f"Batas waktu pembayaran ({BATAS_MENIT} menit) habis. "
-              "Pesanan otomatis dibatalkan dan kuota dikembalikan.")
+        "Pesanan otomatis dibatalkan dan kuota dikembalikan.")
         return None
     pesanan = cari_pesanan(baca_data(file_tiket), kode)
     if pesanan is None:
@@ -60,9 +59,10 @@ def isi_data_diri(pesanan):
 
     while True:
         no_hp = input_wajib("No HP pemesan : ")
-        if no_hp.isdigit() and 10 <= len(no_hp) <= 13:
-            break
-        gagal("No HP harus 10-13 digit angka")
+        if no_hp.isdigit() and 10 <= len(no_hp) <= 13 and 
+        no_hp.startswith("08"):
+        break
+        print("No HP harus 10-13 digit angka dan diawali 08")
 
     while True:
         email = input_wajib("Email : ")

@@ -47,7 +47,6 @@ def cetak_judul(teks):
 
 
 def warna_status(status):
-    """Kembalikan teks status yang sudah berwarna sesuai artinya."""
     return WARNA_STATUS.get(status, "") + str(status) + Style.RESET_ALL
 
 

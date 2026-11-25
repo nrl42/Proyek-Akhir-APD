@@ -1,6 +1,6 @@
 from database import baca_data, simpan_data, file_tiket, file_pembatalan
 from bantuan import (rupiah, id_berikutnya, waktu_sekarang, clear, tekan_enter, tabel,
-                     cetak_judul, sukses, gagal, peringatan, info, warna_status)
+cetak_judul, sukses, gagal, peringatan, info, warna_status)
 from beli_tiket import beli_tiket
 from pembayaran import batalkan_kadaluarsa, sisa_detik, format_sisa, bayar_pesanan
 
@@ -19,10 +19,10 @@ def status_pemesanan(akun):
         peringatan("Belum ada pemesanan.")
     else:
         tabel(["Kode", "Kategori", "Jumlah", "Harga awal", "Diskon", "Total", "Status"],
-              [[t["kode_pesan"], t["kategori"], t["jumlah"], rupiah(t["harga_awal"]),
+        [[t["kode_pesan"], t["kategori"], t["jumlah"], rupiah(t["harga_awal"]),
                 rupiah(t["diskon"]), rupiah(t["total_bayar"]), warna_status(t["status"])]
-               for t in milik_user],
-              judul="STATUS PEMESANAN")
+                for t in milik_user],
+                judul="STATUS PEMESANAN")
     tekan_enter()
 
 
@@ -41,9 +41,9 @@ def bayar_pesanan_tertunda(akun):
         return
 
     tabel(["Kode", "Kategori", "Jumlah", "Total", "Sisa waktu"],
-          [[t["kode_pesan"], t["kategori"], t["jumlah"], rupiah(t["total_bayar"]),
-            format_sisa(sisa_detik(t))] for t in menunggu],
-          judul="BAYAR PESANAN")
+    [[t["kode_pesan"], t["kategori"], t["jumlah"], rupiah(t["total_bayar"]),
+    format_sisa(sisa_detik(t))] for t in menunggu],
+    judul="BAYAR PESANAN")
 
     kode = input("Masukkan kode pesan (0 untuk kembali): ").strip().upper()
     if kode == "0":
@@ -91,17 +91,17 @@ def riwayat_pembelian(akun):
     daftar_tiket = baca_data(file_tiket)
 
     lunas = [t for t in daftar_tiket
-             if t["username"] == akun["username"] and t["status"] == "Lunas"]
+    if t["username"] == akun["username"] and t["status"] == "Lunas"]
 
     if len(lunas) == 0:
         cetak_judul("=== RIWAYAT PEMBELIAN ===")
         peringatan("Belum ada riwayat pembelian")
     else:
         tabel(["No", "Kode pesan", "Kategori", "Jumlah", "Total", "Kode unik"],
-              [[no, t["kode_pesan"], t["kategori"], t["jumlah"],
-                rupiah(t["total_bayar"]), t["kode_unik"]]
-               for no, t in enumerate(lunas, start=1)],
-              judul="RIWAYAT PEMBELIAN")
+        [[no, t["kode_pesan"], t["kategori"], t["jumlah"],
+        rupiah(t["total_bayar"]), t["kode_unik"]]
+        for no, t in enumerate(lunas, start=1)],
+        judul="RIWAYAT PEMBELIAN")
     tekan_enter()
 
 
@@ -111,9 +111,9 @@ def ajukan_pembatalan(akun):
     daftar_batal = baca_data(file_pembatalan)
 
     bisa_dibatalkan = [t for t in daftar_tiket
-                       if t["username"] == akun["username"]
-                       and t["status"] in STATUS_BISA_BATAL
-                       and t["status_tiket"] != "Used"]
+    if t["username"] == akun["username"]
+    and t["status"] in STATUS_BISA_BATAL
+    and t["status_tiket"] != "Used"]
 
     if len(bisa_dibatalkan) == 0:
         cetak_judul("=====AJUKAN PEMBATALAN TIKET=====")
@@ -122,9 +122,9 @@ def ajukan_pembatalan(akun):
         return
 
     tabel(["Kode", "Kategori", "Jumlah", "Total", "Status"],
-          [[t["kode_pesan"], t["kategori"], t["jumlah"], rupiah(t["total_bayar"]),
-            warna_status(t["status"])] for t in bisa_dibatalkan],
-          judul="AJUKAN PEMBATALAN TIKET")
+    [[t["kode_pesan"], t["kategori"], t["jumlah"], rupiah(t["total_bayar"]),
+    warna_status(t["status"])] for t in bisa_dibatalkan],
+    judul="AJUKAN PEMBATALAN TIKET")
 
     kode = input("masukkan kode pesanan (input 0 untuk kembali): ").strip().upper()
     if kode == "0":

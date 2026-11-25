@@ -1,8 +1,8 @@
 from database import (baca_data, simpan_data, file_akun, file_konser, file_diskon, file_tiket, file_pembayaran, file_pembatalan)
 from bantuan import (rupiah, input_angka, input_angka_kosong, input_wajib, tanya_ya_tidak,
-                     id_berikutnya, tampilkan_rincian, tampilkan_daftar_pesanan, clear,
-                     input_password, tekan_enter, tabel, cetak_judul, sukses, gagal,
-                     peringatan, info, warna_status)
+id_berikutnya, tampilkan_rincian, tampilkan_daftar_pesanan, clear,
+input_password, tekan_enter, tabel, cetak_judul, sukses, gagal,
+peringatan, info, warna_status)
 from pesanan import (cari_pesanan, cari_kategori, pembayaran_terakhir, batalkan_pesanan)
 from pembayaran import batalkan_kadaluarsa
 from laporan import (hitung_penjualan, tampilkan_laporan, tampilkan_diagram_batang, simpan_laporan_teks, file_grafik, file_laporan)
@@ -12,8 +12,8 @@ ROLE_VALID = ("Admin", "Petugas", "User")
 
 def tampilkan_akun(daftar_akun):
     tabel(["No", "Username", "Nama", "No HP", "Role"],
-          [[nomor, a["username"], a["nama"], a["no_hp"], a["role"]]
-           for nomor, a in enumerate(daftar_akun, start=1)])
+    [[nomor, a["username"], a["nama"], a["no_hp"], a["role"]]
+    for nomor, a in enumerate(daftar_akun, start=1)])
 
 
 def pilih_role():
@@ -76,7 +76,7 @@ def kelolaAkun(akun_admin):
             tekan_enter()
 
         elif pilih == "3":
-            nomor = input_angka("id akun yang dihapus: ")
+            nomor = input_angka("nomor akun yang dihapus: ")
             if not 1 <= nomor <= len(daftar_akun):
                 gagal("Pengguna tidak valid")
                 tekan_enter()
@@ -111,8 +111,8 @@ def tampilkan_info_konser(konser):
 
 def tampilkan_katalog(konser):
     tabel(["No", "Kategori", "Harga", "Sisa kuota"],
-          [[k["nomor"], k["jenis"], rupiah(k["harga"]), k["kuota"]] for k in konser["kategori"]],
-          judul="KATALOG TIKET")
+    [[k["nomor"], k["jenis"], rupiah(k["harga"]), k["kuota"]] for k in konser["kategori"]],
+    judul="KATALOG TIKET")
 
 
 def ubah_info_konser(konser):
@@ -170,7 +170,7 @@ def hapus_kategori(konser):
     if kategori is None:
         return "Kategori tidak ditemukan"
     aktif = [t for t in baca_data(file_tiket)
-             if t["kategori"] == kategori["jenis"] and t["status"] in ("Menunggu Pembayaran", "Menunggu Verifikasi", "Lunas")]
+    if t["kategori"] == kategori["jenis"] and t["status"] in ("Menunggu Pembayaran", "Menunggu Verifikasi", "Lunas")]
     if len(aktif) > 0:
         return "Kategori tidak bisa dihapus, masih ada pesanan aktif."
     if tanya_ya_tidak(f"Hapus kategori {kategori['jenis']}?"):
@@ -214,8 +214,8 @@ def kelolaKonserDanKatalog():
 
 def tampilkan_diskon(daftar_diskon):
     tabel(["ID", "Nama", "Min", "Maks", "Persen"],
-          [[d["id"], d["nama"], d["min_tiket"], d["maks_tiket"], f"{d['persen']}%"]
-           for d in daftar_diskon])
+    [[d["id"], d["nama"], d["min_tiket"], d["maks_tiket"], f"{d['persen']}%"]
+    for d in daftar_diskon])
 
 
 def kelolaDiskon():
@@ -236,8 +236,8 @@ def kelolaDiskon():
                 gagal("Data tidak valid (jumlah tiket / persen 0-100)")
             else:
                 daftar_diskon.append({"id": id_berikutnya(daftar_diskon), "nama": nama,
-                                      "min_tiket": minimal, "maks_tiket": maksimal,
-                                      "persen": persen})
+                "min_tiket": minimal, "maks_tiket": maksimal,
+                "persen": persen})
                 simpan_data(file_diskon, daftar_diskon)
                 sukses("Diskon baru berhasil disimpan")
             tekan_enter()
@@ -337,9 +337,9 @@ def LihatTransaksiPembayaran():
         return
 
     tabel(["ID", "Kode", "Username", "Metode", "Nominal", "Status"],
-          [[b["id"], b["kode_pesan"], b["username"], b["metode"],
-            rupiah(b["nominal"]), warna_status(b["status"])] for b in daftar_bayar],
-          judul="TRANSAKSI PEMBAYARAN")
+    [[b["id"], b["kode_pesan"], b["username"], b["metode"],
+    rupiah(b["nominal"]), warna_status(b["status"])] for b in daftar_bayar],
+    judul="TRANSAKSI PEMBAYARAN")
     tekan_enter()
 
 
@@ -355,8 +355,8 @@ def kelolaPembatalanTiket():
             return
 
         tabel(["ID", "Kode pesan", "Username", "Alasan"],
-              [[b["id"], b["kode_pesan"], b["username"], b["alasan"]] for b in menunggu],
-              judul="KELOLA PEMBATALAN TIKET")
+        [[b["id"], b["kode_pesan"], b["username"], b["alasan"]] for b in menunggu],
+        judul="KELOLA PEMBATALAN TIKET")
 
         id_batal = input_angka("Masukkan ID permintaan (0 untuk kembali): ")
         if id_batal == 0:
