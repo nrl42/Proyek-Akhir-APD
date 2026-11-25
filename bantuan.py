@@ -3,6 +3,8 @@ import string
 import os
 from datetime import datetime
 
+from prettytable import PrettyTable
+
 from database import baca_data, file_diskon
 
 MAKS_TIKET = 4
@@ -25,7 +27,6 @@ def rupiah(angka):
 
 
 def input_angka(pesan):
-    
     try:
         return int(input(pesan).strip())
     except ValueError:
@@ -33,7 +34,6 @@ def input_angka(pesan):
 
 
 def input_angka_kosong(pesan):
-    
     teks = input(pesan).strip()
     if teks == "":
         return None
@@ -44,7 +44,6 @@ def input_angka_kosong(pesan):
 
 
 def input_wajib(pesan):
-    
     while True:
         teks = input(pesan).strip()
         if teks != "":
@@ -84,10 +83,9 @@ def buat_kode_pesanan(daftar_tiket):
 
 
 def buat_kode_unik(daftar_tiket=None):
-    
     if daftar_tiket is None:
         daftar_tiket = []
-    kode_terpakai = {t.get("kode_unik") for t in daftar_tiket}  
+    kode_terpakai = {t.get("kode_unik") for t in daftar_tiket}
     huruf_dan_angka = string.ascii_uppercase + string.digits
     while True:
         kode = "TKT-"
@@ -136,8 +134,7 @@ def tampilkan_struk(pesanan):
 
 def tampilkan_baris_pesanan(p):
     print(f"{p['kode_pesan']} | {p['username']} | {p['kategori']} x {p['jumlah']} | "
-        f"{rupiah(p['total_bayar'])} | {p['status']}")
-
+          f"{rupiah(p['total_bayar'])} | {p['status']}")
 
 
 def tekan_enter():
@@ -154,28 +151,30 @@ def input_password(pesan="masukkan password anda: "):
 
 
 def tabel(kolom, baris, judul=None):
+    """Cetak tabel PrettyTable.
+    kolom : daftar nama kolom, contoh ["No", "Nama"]
+    baris : daftar baris, contoh [[1, "Budi"], [2, "Ani"]]
+    judul : teks judul di atas tabel (opsional)
+    """
     if judul:
         print("\n=====" + judul + "=====")
-    try:
-        from prettytable import PrettyTable
-        t = PrettyTable(list(kolom))
-        t.align = "l"
-        for b in baris:
-            t.add_row([str(sel) for sel in b])
-        print(t)
-    except ImportError:
-        lebar = [len(str(k)) for k in kolom]
-        for b in baris:
-            for i, sel in enumerate(b):
-                lebar[i] = max(lebar[i], len(str(sel)))
-        pemisah = "+" + "+".join("-" * (w + 2) for w in lebar) + "+"
 
-        def cetak(isi):
-            print("| " + " | ".join(str(s).ljust(w) for s, w in zip(isi, lebar)) + " |")
+    t = PrettyTable([str(k) for k in kolom])
+    t.align = "l"
+    for b in baris:
+        t.add_row([str(sel) for sel in b])
+    print(t)
 
-        print(pemisah)
-        cetak(kolom)
-        print(pemisah)
-        for b in baris:
-            cetak(b)
-        print(pemisah)
+
+def tabel_pesanan(daftar_pesanan, judul=None):
+    """Tampilkan daftar pesanan (dari tiket.json) dalam satu tabel."""
+    baris = []
+    for p in daftar_pesanan:
+        baris.append([
+            p["kode_pesan"],
+            p["username"],
+            f"{p['kategori']} x {p['jumlah']}",
+            rupiah(p["total_bayar"]),
+            p["status"],
+        ])
+    tabel(["Kode", "Username", "Tiket", "Total", "Status"], baris, judul)

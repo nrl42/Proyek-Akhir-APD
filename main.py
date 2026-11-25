@@ -1,10 +1,16 @@
+<<<<<<< HEAD
 
+=======
+from database import baca_data, file_konser
+from bantuan import rupiah
+>>>>>>> bde7c84a32db483321e8b7c2ca094423c76ba97f
 from database import baca_data, file_konser, siapkan_data
-from bantuan import rupiah, clear, tekan_enter
+from bantuan import rupiah, clear, tekan_enter, tabel
 from auth import login, register
 from menu_user import menu_user
 from menu_petugas import menu_petugas
 from menu_admin import menu_admin
+
 
 
 def tampilkan_kategori_tiket():

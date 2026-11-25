@@ -1,6 +1,7 @@
 from database import baca_data, file_konser
-from bantuan import (clear, rupiah, input_angka, tanya_ya_tidak, tampilkan_rincian, hitung_diskon, persen_diskon, MAKS_TIKET)
+from bantuan import (clear, rupiah, input_angka, tanya_ya_tidak, tampilkan_rincian, hitung_diskon, persen_diskon, MAKS_TIKET, PrettyTable)
 from pesanan import cari_kategori, buat_pesanan
+
 
 from pembayaran import bayar_pesanan
 

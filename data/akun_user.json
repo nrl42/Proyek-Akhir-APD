@@ -22,6 +22,7 @@
     },
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         "username": "nurfadilla",
         "password": "dila123",
         "nama": "dill",
@@ -46,6 +47,12 @@
         "nama": "nurfadila ariyanti",
         "no_hp": "081234567859",
 >>>>>>> 851c8a8 (update main.py dan akun_user.json)
+=======
+        "username": "dilla",
+        "password": "dilla123",
+        "nama": "nur fadilla",
+        "no_hp": "081258589999",
+>>>>>>> bde7c84a32db483321e8b7c2ca094423c76ba97f
         "role": "User"
     }
 ]
