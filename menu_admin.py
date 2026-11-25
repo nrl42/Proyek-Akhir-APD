@@ -1,16 +1,19 @@
 from database import (baca_data, simpan_data, file_akun, file_konser, file_diskon, file_tiket, file_pembayaran, file_pembatalan)
-from bantuan import (rupiah, garis, input_angka, input_angka_kosong, input_wajib, tanya_ya_tidak, id_berikutnya, tampilkan_rincian, tampilkan_baris_pesanan, clear, input_password, tekan_enter)
+from bantuan import (rupiah, input_angka, input_angka_kosong, input_wajib, tanya_ya_tidak,
+                     id_berikutnya, tampilkan_rincian, tampilkan_daftar_pesanan, clear,
+                     input_password, tekan_enter, tabel, cetak_judul, sukses, gagal,
+                     peringatan, info, warna_status)
 from pesanan import (cari_pesanan, cari_kategori, pembayaran_terakhir, batalkan_pesanan)
 from pembayaran import batalkan_kadaluarsa
 from laporan import (hitung_penjualan, tampilkan_laporan, tampilkan_diagram_batang, simpan_laporan_teks, file_grafik, file_laporan)
 
 ROLE_VALID = ("Admin", "Petugas", "User")
 
+
 def tampilkan_akun(daftar_akun):
-    print(f"\n{'No':<4}{'Username':<15}{'Nama':<20}{'No HP':<15}{'Role':<8}")
-    garis(62)
-    for nomor, a in enumerate(daftar_akun, start=1):
-        print(f"{nomor:<4}{a['username']:<15}{a['nama']:<20}{a['no_hp']:<15}{a['role']:<8}")
+    tabel(["No", "Username", "Nama", "No HP", "Role"],
+          [[nomor, a["username"], a["nama"], a["no_hp"], a["role"]]
+           for nomor, a in enumerate(daftar_akun, start=1)])
 
 
 def pilih_role():
@@ -20,22 +23,23 @@ def pilih_role():
         pilih = input_angka("Pilih role: ")
         if 1 <= pilih <= len(ROLE_VALID):
             return ROLE_VALID[pilih - 1]
-        print("Role tidak valid")
+        gagal("Role tidak valid")
 
 
 def kelolaAkun(akun_admin):
     while True:
         clear()
         daftar_akun = baca_data(file_akun)
-        print("=====KELOLA AKUN=====")
+        cetak_judul("=====KELOLA AKUN=====")
         tampilkan_akun(daftar_akun)
         print("\n1. Tambah\n2. Ubah\n3. Hapus\n4. Keluar")
         pilih = input("Pilih: ").strip()
 
         if pilih == "1":
             username = input_wajib("Username: ")
-            if username in {a["username"] for a in daftar_akun}:   
-                print("Username sudah dipakai!")
+            if username in {a["username"] for a in daftar_akun}:
+                gagal("Username sudah dipakai!")
+                tekan_enter()
                 continue
             daftar_akun.append({
                 "username": username,
@@ -45,15 +49,17 @@ def kelolaAkun(akun_admin):
                 "role": pilih_role(),
             })
             simpan_data(file_akun, daftar_akun)
-            print("Akun baru berhasil dibuat")
+            sukses("Akun baru berhasil dibuat")
+            tekan_enter()
 
         elif pilih == "2":
             nomor = input_angka("id akun yang diubah: ")
             if not 1 <= nomor <= len(daftar_akun):
-                print("Pengguna tidak valid")
+                gagal("Pengguna tidak valid")
+                tekan_enter()
                 continue
             a = daftar_akun[nomor - 1]
-            print("Kosongkan (Enter) jika tidak ingin mengubah.")
+            peringatan("Kosongkan (Enter) jika tidak ingin mengubah.")
             nama = input(f"Nama [{a['nama']}]: ").strip()
             password = input_password("Password baru: ")
             no_hp = input(f"No HP [{a['no_hp']}]: ").strip()
@@ -66,44 +72,47 @@ def kelolaAkun(akun_admin):
             if tanya_ya_tidak(f"Ubah role (sekarang {a['role']})?"):
                 a["role"] = pilih_role()
             simpan_data(file_akun, daftar_akun)
-            print("Data pengguna berhasil diubah")
+            sukses("Data pengguna berhasil diubah")
+            tekan_enter()
 
         elif pilih == "3":
             nomor = input_angka("id akun yang dihapus: ")
             if not 1 <= nomor <= len(daftar_akun):
-                print("Pengguna tidak valid")
+                gagal("Pengguna tidak valid")
+                tekan_enter()
                 continue
             a = daftar_akun[nomor - 1]
             if a["username"] == akun_admin["username"]:
-                print("Tidak bisa menghapus akun yang sedang dipakai!")
+                gagal("Tidak bisa menghapus akun yang sedang dipakai!")
             elif tanya_ya_tidak(f"Hapus akun {a['username']}?"):
                 daftar_akun.pop(nomor - 1)
                 simpan_data(file_akun, daftar_akun)
-                print(f"akun {a['username']} telah dihapus")
+                sukses(f"akun {a['username']} telah dihapus")
             else:
-                print("penghapusan akun dibatalkan")
+                peringatan("penghapusan akun dibatalkan")
             tekan_enter()
 
         elif pilih == "4":
-            print("Logout berhasil")
+            info("Kembali ke menu admin")
             return
         else:
-            print("Inputan tidak valid")
-            
+            gagal("Inputan tidak valid")
+            tekan_enter()
 
 
 def tampilkan_info_konser(konser):
-    print("Judul   :", konser["judul"])
-    print("Tanggal :", konser["tanggal"])
-    print("Waktu   :", konser["waktu"])
-    print("Lokasi  :", konser["lokasi"])
+    tabel(["Keterangan", "Isi"], [
+        ["Judul", konser["judul"]],
+        ["Tanggal", konser["tanggal"]],
+        ["Waktu", konser["waktu"]],
+        ["Lokasi", konser["lokasi"]],
+    ], judul="INFO KONSER")
 
 
 def tampilkan_katalog(konser):
-    print(f"\n{'No':<4}{'Kategori':<12}{'Harga':>14}{'Sisa kuota':>12}")
-    garis(42)
-    for k in konser["kategori"]:
-        print(f"{k['nomor']:<4}{k['jenis']:<12}{rupiah(k['harga']):>14}{k['kuota']:>12}")
+    tabel(["No", "Kategori", "Harga", "Sisa kuota"],
+          [[k["nomor"], k["jenis"], rupiah(k["harga"]), k["kuota"]] for k in konser["kategori"]],
+          judul="KATALOG TIKET")
 
 
 def ubah_info_konser(konser):
@@ -139,7 +148,7 @@ def ubah_kategori(konser):
     kategori = cari_kategori(konser, input_angka("Nomor kategori yang diubah: "))
     if kategori is None:
         return "Kategori tidak ditemukan"
-    print("Kosongkan (Enter) jika tidak ingin mengubah.")
+    peringatan("Kosongkan (Enter) jika tidak ingin mengubah.")
     nama = input(f"Nama [{kategori['jenis']}]: ").strip()
     harga = input_angka_kosong(f"Harga [{kategori['harga']}]: ")
     kuota = input_angka_kosong(f"Kuota [{kategori['kuota']}]: ")
@@ -161,7 +170,7 @@ def hapus_kategori(konser):
     if kategori is None:
         return "Kategori tidak ditemukan"
     aktif = [t for t in baca_data(file_tiket)
-            if t["kategori"] == kategori["jenis"] and t["status"] in ("Menunggu Pembayaran", "Menunggu Verifikasi", "Lunas")]
+             if t["kategori"] == kategori["jenis"] and t["status"] in ("Menunggu Pembayaran", "Menunggu Verifikasi", "Lunas")]
     if len(aktif) > 0:
         return "Kategori tidak bisa dihapus, masih ada pesanan aktif."
     if tanya_ya_tidak(f"Hapus kategori {kategori['jenis']}?"):
@@ -172,15 +181,15 @@ def hapus_kategori(konser):
 
 
 def kelolaKonserDanKatalog():
-    pesan = ""        
+    pesan = ""
     while True:
         clear()
         konser = baca_data(file_konser)
-        print("=====KELOLA INFORMASI KONSER & KATALOG TIKET=====")
+        cetak_judul("=====KELOLA INFORMASI KONSER & KATALOG TIKET=====")
         tampilkan_info_konser(konser)
         tampilkan_katalog(konser)
         if pesan != "":
-            print("\n>>", pesan)
+            info("\n>> " + pesan)
             pesan = ""
         print("\n1. Ubah informasi konser")
         print("2. Tambah kategori tiket")
@@ -203,19 +212,17 @@ def kelolaKonserDanKatalog():
             pesan = "Pilihan tidak valid"
 
 
-
 def tampilkan_diskon(daftar_diskon):
-    print(f"\n{'ID':<4}{'Nama':<22}{'Min':>5}{'Maks':>6}{'Persen':>8}")
-    garis(45)
-    for d in daftar_diskon:
-        print(f"{d['id']:<4}{d['nama']:<22}{d['min_tiket']:>5}{d['maks_tiket']:>6}{d['persen']:>7}%")
+    tabel(["ID", "Nama", "Min", "Maks", "Persen"],
+          [[d["id"], d["nama"], d["min_tiket"], d["maks_tiket"], f"{d['persen']}%"]
+           for d in daftar_diskon])
 
 
 def kelolaDiskon():
     while True:
         clear()
         daftar_diskon = baca_data(file_diskon)
-        print("=====KELOLA KETENTUAN DISKON=====")
+        cetak_judul("=====KELOLA KETENTUAN DISKON=====")
         tampilkan_diskon(daftar_diskon)
         print("\n1. Tambah\n2. Ubah\n3. Hapus\n4. Keluar")
         pilih = input("Pilih aksi: ").strip()
@@ -226,13 +233,14 @@ def kelolaDiskon():
             maksimal = input_angka("Maksimal pembelian tiket: ")
             persen = input_angka("Persentase diskon (0-100): ")
             if minimal < 1 or maksimal < minimal or not 0 <= persen <= 100:
-                print("Data tidak valid (jumlah tiket / persen 0-100)")
+                gagal("Data tidak valid (jumlah tiket / persen 0-100)")
             else:
                 daftar_diskon.append({"id": id_berikutnya(daftar_diskon), "nama": nama,
-                                    "min_tiket": minimal, "maks_tiket": maksimal,
-                                    "persen": persen})
+                                      "min_tiket": minimal, "maks_tiket": maksimal,
+                                      "persen": persen})
                 simpan_data(file_diskon, daftar_diskon)
-                print("Diskon baru berhasil disimpan")
+                sukses("Diskon baru berhasil disimpan")
+            tekan_enter()
 
         elif pilih == "2":
             id_diskon = input_angka("ID diskon yang diubah: ")
@@ -241,9 +249,10 @@ def kelolaDiskon():
                 if d["id"] == id_diskon:
                     diskon = d
             if diskon is None:
-                print("Diskon tidak ditemukan")
+                gagal("Diskon tidak ditemukan")
+                tekan_enter()
                 continue
-            print("Kosongkan (Enter) jika tidak ingin mengubah.")
+            peringatan("Kosongkan (Enter) jika tidak ingin mengubah.")
             nama = input(f"Nama [{diskon['nama']}]: ").strip()
             minimal = input_angka_kosong(f"Minimal tiket [{diskon['min_tiket']}]: ")
             maksimal = input_angka_kosong(f"Maksimal tiket [{diskon['maks_tiket']}]: ")
@@ -254,7 +263,8 @@ def kelolaDiskon():
             persen_baru = diskon["persen"] if persen is None else persen
             if -1 in (minimal, maksimal, persen) or minimal_baru < 1 \
                     or maksimal_baru < minimal_baru or not 0 <= persen_baru <= 100:
-                print("Data tidak valid, perubahan dibatalkan")
+                gagal("Data tidak valid, perubahan dibatalkan")
+                tekan_enter()
                 continue
             if nama != "":
                 diskon["nama"] = nama
@@ -262,7 +272,8 @@ def kelolaDiskon():
             diskon["maks_tiket"] = maksimal_baru
             diskon["persen"] = persen_baru
             simpan_data(file_diskon, daftar_diskon)
-            print("Ketentuan diskon berhasil diperbarui")
+            sukses("Ketentuan diskon berhasil diperbarui")
+            tekan_enter()
 
         elif pilih == "3":
             id_diskon = input_angka("ID diskon yang dihapus: ")
@@ -271,28 +282,30 @@ def kelolaDiskon():
                 if d["id"] == id_diskon:
                     diskon = d
             if diskon is None:
-                print("Diskon tidak ditemukan")
+                gagal("Diskon tidak ditemukan")
             elif tanya_ya_tidak(f"Hapus {diskon['nama']}?"):
                 daftar_diskon.remove(diskon)
                 simpan_data(file_diskon, daftar_diskon)
-                print("Ketentuan diskon berhasil dihapus")
+                sukses("Ketentuan diskon berhasil dihapus")
+            tekan_enter()
 
         elif pilih == "4":
             return
         else:
-            print("Pilihan tidak valid")
-            
+            gagal("Pilihan tidak valid")
+            tekan_enter()
+
 
 def lihatTransaksiPemesanan():
     clear()
     daftar_tiket = baca_data(file_tiket)
-    print("=====SEMUA TRANSAKSI PEMESANAN=====")
+    cetak_judul("=====SEMUA TRANSAKSI PEMESANAN=====")
     if len(daftar_tiket) == 0:
-        print("Transaksi belum tersedia")
+        peringatan("Transaksi belum tersedia")
+        tekan_enter()
         return
 
-    for t in daftar_tiket:
-        tampilkan_baris_pesanan(t)
+    tampilkan_daftar_pesanan(daftar_tiket)
 
     while True:
         kode = input("Kode pemesanan untuk detail (0 untuk kembali): ").strip().upper()
@@ -300,34 +313,33 @@ def lihatTransaksiPemesanan():
             return
         t = cari_pesanan(daftar_tiket, kode)
         if t is None:
-            print("Transaksi tidak ditemukan")
+            gagal("Transaksi tidak ditemukan")
             continue
-        print("\n--- Detail Transaksi ---")
-        print("Kode pesan   :", t["kode_pesan"])
-        print("Pelanggan    :", t["username"])
-        print("Kategori     :", t["kategori"], "x", t["jumlah"])
-        print("Total bayar  :", rupiah(t["total_bayar"]))
-        print("Kode unik    :", t["kode_unik"] if t["kode_unik"] else "-")
-        print("Status       :", t["status"])
-        print("Status tiket :", t["status_tiket"])
+        tabel(["Keterangan", "Isi"], [
+            ["Kode pesan", t["kode_pesan"]],
+            ["Pelanggan", t["username"]],
+            ["Kategori", f"{t['kategori']} x {t['jumlah']}"],
+            ["Total bayar", rupiah(t["total_bayar"])],
+            ["Kode unik", t["kode_unik"] if t["kode_unik"] else "-"],
+            ["Status", warna_status(t["status"])],
+            ["Status tiket", warna_status(t["status_tiket"])],
+        ], judul="DETAIL TRANSAKSI")
+
 
 def LihatTransaksiPembayaran():
     clear()
     daftar_bayar = baca_data(file_pembayaran)
-    print("====== Transaksi Pembayaran ======")
 
     if len(daftar_bayar) == 0:
-        print("transaksi pembayaran belum tersedia")
+        cetak_judul("====== TRANSAKSI PEMBAYARAN ======")
+        peringatan("transaksi pembayaran belum tersedia")
+        tekan_enter()
         return
-        
 
-    print(f"\n{'ID':<5}{'Kode':<15}{'Username':<15}{'Metode':<18}{'Nominal':<15}{'Status':<25}")
-
-    for b in daftar_bayar:
-        print(f"{b['id']:<5}{b['kode_pesan']:<15}" 
-        f"{b['username']:<15}{b['metode']:<18}"
-        f"{rupiah(b['nominal']):<15}{b['status']:<25}")
-
+    tabel(["ID", "Kode", "Username", "Metode", "Nominal", "Status"],
+          [[b["id"], b["kode_pesan"], b["username"], b["metode"],
+            rupiah(b["nominal"]), warna_status(b["status"])] for b in daftar_bayar],
+          judul="TRANSAKSI PEMBAYARAN")
     tekan_enter()
 
 
@@ -336,13 +348,15 @@ def kelolaPembatalanTiket():
         clear()
         daftar_batal = baca_data(file_pembatalan)
         menunggu = [b for b in daftar_batal if b["status"] == "Menunggu"]
-        print("=====KELOLA PEMBATALAN TIKET=====")
         if len(menunggu) == 0:
-            print("Belum ada permintaan pembatalan")
+            cetak_judul("=====KELOLA PEMBATALAN TIKET=====")
+            peringatan("Belum ada permintaan pembatalan")
+            tekan_enter()
             return
 
-        for b in menunggu:
-            print(f"ID {b['id']} | {b['kode_pesan']} | {b['username']} | alasan: {b['alasan']}")
+        tabel(["ID", "Kode pesan", "Username", "Alasan"],
+              [[b["id"], b["kode_pesan"], b["username"], b["alasan"]] for b in menunggu],
+              judul="KELOLA PEMBATALAN TIKET")
 
         id_batal = input_angka("Masukkan ID permintaan (0 untuk kembali): ")
         if id_batal == 0:
@@ -353,78 +367,79 @@ def kelolaPembatalanTiket():
             if b["id"] == id_batal:
                 permintaan = b
         if permintaan is None:
-            print("ID tidak valid")
+            gagal("ID tidak valid")
+            tekan_enter()
             continue
 
         pesanan = cari_pesanan(baca_data(file_tiket), permintaan["kode_pesan"])
-        print("\n--- Detail Pemesanan ---")
         tampilkan_rincian(pesanan)
-        print("Status    :", pesanan["status"])
-        print("Alasan    :", permintaan["alasan"])
+        print("Status :", warna_status(pesanan["status"]))
+        print("Alasan :", permintaan["alasan"])
 
         if tanya_ya_tidak("Setujui pembatalan?"):
             batalkan_pesanan(permintaan["kode_pesan"])
             permintaan["status"] = "Disetujui"
-            print("Pembatalan berhasil disetujui, kuota dikembalikan")
+            sukses("Pembatalan berhasil disetujui, kuota dikembalikan")
         else:
             permintaan["status"] = "Ditolak"
-            print("Pembatalan ditolak, tiket tetap berlaku")
+            peringatan("Pembatalan ditolak, tiket tetap berlaku")
         simpan_data(file_pembatalan, daftar_batal)
 
         if not tanya_ya_tidak("Proses permintaan lain?"):
             return
 
 
-
 def lihatRincianHarga():
     clear()
     daftar_tiket = baca_data(file_tiket)
-    print("=====RINCIAN HARGA SEBELUM & SESUDAH DISKON=====")
+    cetak_judul("=====RINCIAN HARGA SEBELUM & SESUDAH DISKON=====")
     if len(daftar_tiket) == 0:
-        print("Belum ada data pemesanan")
-        
+        peringatan("Belum ada data pemesanan")
+        tekan_enter()
         return
 
-    for t in daftar_tiket:
-        tampilkan_baris_pesanan(t)
+    tampilkan_daftar_pesanan(daftar_tiket)
 
     kode = input("Kode pemesanan (0 untuk kembali): ").strip().upper()
     if kode == "0":
         return
     t = cari_pesanan(daftar_tiket, kode)
     if t is None:
-        print("Transaksi tidak ditemukan")
-        
+        gagal("Transaksi tidak ditemukan")
+        tekan_enter()
         return
 
     persen = t["diskon"] * 100 // t["harga_awal"] if t["harga_awal"] else 0
     tampilkan_rincian(t)
-    print("Persentase diskon:", str(persen) + "%")
+    info("Persentase diskon: " + str(persen) + "%")
+    tekan_enter()
+
 
 def lihatLaporanPenjualan():
     clear()
     hasil, pembeli = hitung_penjualan()
     total_tiket = sum(t for t, p in hasil.values())
     if total_tiket == 0:
-        print("Laporan penjualan belum tersedia (belum ada transaksi lunas)")
+        peringatan("Laporan penjualan belum tersedia (belum ada transaksi lunas)")
+        tekan_enter()
         return
 
     tampilkan_laporan(hasil, pembeli)
-    print("\nMenampilkan diagram batang...")
+    info("\nMenampilkan diagram batang...")
     tampilkan_diagram_batang(hasil)
-    print("Grafik tersimpan di:", file_grafik)
+    info("Grafik tersimpan di: " + file_grafik)
 
     if tanya_ya_tidak("Cetak/unduh laporan ke file?"):
         simpan_laporan_teks(hasil, pembeli)
-        print("Laporan tersimpan di:", file_laporan)
-
+        sukses("Laporan tersimpan di: " + file_laporan)
+    tekan_enter()
 
 
 def menu_admin(akun):
     while True:
         batalkan_kadaluarsa()
         clear()
-        print("=== MENU ADMIN ===")
+        cetak_judul("=== MENU ADMIN ===")
         print("Selamat datang,", akun["nama"])
         print("1. Kelola akun")
         print("2. Kelola informasi konser dan katalog tiket")
@@ -454,7 +469,8 @@ def menu_admin(akun):
         elif menu == "8":
             lihatLaporanPenjualan()
         elif menu == "9":
-            print("Logout berhasil")
+            sukses("Logout berhasil")
             break
         else:
-            print("Menu tidak valid")
+            gagal("Menu tidak valid")
+            tekan_enter()

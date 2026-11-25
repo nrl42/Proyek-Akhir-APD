@@ -3,11 +3,52 @@ import string
 import os
 from datetime import datetime
 
+from colorama import init, Fore, Style
 from prettytable import PrettyTable
 
 from database import baca_data, file_diskon
 
+init(autoreset=True)
+
 MAKS_TIKET = 4
+
+WARNA_STATUS = {
+    "Lunas": Fore.GREEN,
+    "Terverifikasi": Fore.GREEN,
+    "Active": Fore.GREEN,
+    "Disetujui": Fore.GREEN,
+    "Menunggu Pembayaran": Fore.YELLOW,
+    "Menunggu Verifikasi": Fore.YELLOW,
+    "Menunggu": Fore.YELLOW,
+    "Used": Fore.CYAN,
+    "Dibatalkan": Fore.RED,
+    "Ditolak": Fore.RED,
+}
+
+
+def sukses(teks):
+    print(Fore.GREEN + Style.BRIGHT + str(teks))
+
+
+def gagal(teks):
+    print(Fore.RED + Style.BRIGHT + str(teks))
+
+
+def peringatan(teks):
+    print(Fore.YELLOW + str(teks))
+
+
+def info(teks):
+    print(Fore.CYAN + str(teks))
+
+
+def cetak_judul(teks):
+    print(Fore.CYAN + Style.BRIGHT + str(teks))
+
+
+def warna_status(status):
+    """Kembalikan teks status yang sudah berwarna sesuai artinya."""
+    return WARNA_STATUS.get(status, "") + str(status) + Style.RESET_ALL
 
 
 def clear():
@@ -27,6 +68,7 @@ def rupiah(angka):
 
 
 def input_angka(pesan):
+    
     try:
         return int(input(pesan).strip())
     except ValueError:
@@ -34,6 +76,7 @@ def input_angka(pesan):
 
 
 def input_angka_kosong(pesan):
+    
     teks = input(pesan).strip()
     if teks == "":
         return None
@@ -44,11 +87,12 @@ def input_angka_kosong(pesan):
 
 
 def input_wajib(pesan):
+    
     while True:
         teks = input(pesan).strip()
         if teks != "":
             return teks
-        print("Tidak boleh kosong!")
+        gagal("Tidak boleh kosong!")
 
 
 def tanya_ya_tidak(pesan):
@@ -58,7 +102,7 @@ def tanya_ya_tidak(pesan):
             return True
         if jawab == "n" or jawab == "t" or jawab == "tidak":
             return False
-        print("jawab dengan y atau n ")
+        peringatan("jawab dengan y atau n ")
 
 
 def id_berikutnya(daftar):
@@ -83,9 +127,10 @@ def buat_kode_pesanan(daftar_tiket):
 
 
 def buat_kode_unik(daftar_tiket=None):
+    
     if daftar_tiket is None:
         daftar_tiket = []
-    kode_terpakai = {t.get("kode_unik") for t in daftar_tiket}
+    kode_terpakai = {t.get("kode_unik") for t in daftar_tiket}  
     huruf_dan_angka = string.ascii_uppercase + string.digits
     while True:
         kode = "TKT-"
@@ -108,33 +153,40 @@ def hitung_diskon(jumlah, harga_awal):
 
 
 def tampilkan_rincian(pesanan):
-    print("\n=====RINCIAN PEMESANAN=====")
-    print("Kategori   :", pesanan["kategori"])
-    print("Jumlah     :", pesanan["jumlah"])
-    print("Harga awal :", rupiah(pesanan["harga_awal"]))
-    print("Diskon     :", rupiah(pesanan["diskon"]))
-    print("Total bayar:", rupiah(pesanan["total_bayar"]))
+    tabel(["Keterangan", "Isi"], [
+        ["Kategori", pesanan["kategori"]],
+        ["Jumlah", pesanan["jumlah"]],
+        ["Harga awal", rupiah(pesanan["harga_awal"])],
+        ["Diskon", rupiah(pesanan["diskon"])],
+        ["Total bayar", rupiah(pesanan["total_bayar"])],
+    ], judul="RINCIAN PEMESANAN")
 
 
 def tampilkan_struk(pesanan):
-    print("\n===============")
-    print("STRUK PEMESANAN")
-    print("===============")
-    print("Kode pesan :", pesanan["kode_pesan"])
-    print("Kode unik  :", pesanan["kode_unik"] if pesanan["kode_unik"] else "-")
-    print("Pemesan    :", pesanan["username"])
-    print("Kategori   :", pesanan["kategori"])
-    print("Jumlah     :", pesanan["jumlah"])
-    print("Harga awal :", rupiah(pesanan["harga_awal"]))
-    print("Diskon     :", rupiah(pesanan["diskon"]))
-    print("Total bayar:", rupiah(pesanan["total_bayar"]))
-    print("Status     :", pesanan["status"])
-    print("===============")
+    tabel(["Keterangan", "Isi"], [
+        ["Kode pesan", pesanan["kode_pesan"]],
+        ["Kode unik", pesanan["kode_unik"] if pesanan["kode_unik"] else "-"],
+        ["Pemesan", pesanan["username"]],
+        ["Kategori", pesanan["kategori"]],
+        ["Jumlah", pesanan["jumlah"]],
+        ["Harga awal", rupiah(pesanan["harga_awal"])],
+        ["Diskon", rupiah(pesanan["diskon"])],
+        ["Total bayar", rupiah(pesanan["total_bayar"])],
+        ["Status", warna_status(pesanan["status"])],
+    ], judul="STRUK PEMESANAN")
 
 
 def tampilkan_baris_pesanan(p):
     print(f"{p['kode_pesan']} | {p['username']} | {p['kategori']} x {p['jumlah']} | "
-          f"{rupiah(p['total_bayar'])} | {p['status']}")
+        f"{rupiah(p['total_bayar'])} | {warna_status(p['status'])}")
+
+
+def tampilkan_daftar_pesanan(daftar):
+    """Tabel ringkas untuk banyak pesanan sekaligus."""
+    tabel(["Kode", "Username", "Kategori", "Jumlah", "Total", "Status"],
+          [[p["kode_pesan"], p["username"], p["kategori"], p["jumlah"],
+            rupiah(p["total_bayar"]), warna_status(p["status"])] for p in daftar])
+
 
 
 def tekan_enter():
@@ -151,30 +203,11 @@ def input_password(pesan="masukkan password anda: "):
 
 
 def tabel(kolom, baris, judul=None):
-    """Cetak tabel PrettyTable.
-    kolom : daftar nama kolom, contoh ["No", "Nama"]
-    baris : daftar baris, contoh [[1, "Budi"], [2, "Ani"]]
-    judul : teks judul di atas tabel (opsional)
-    """
     if judul:
-        print("\n=====" + judul + "=====")
-
-    t = PrettyTable([str(k) for k in kolom])
+        print()
+        cetak_judul(f"====={judul}=====")
+    t = PrettyTable([Fore.CYAN + Style.BRIGHT + str(k) + Style.RESET_ALL for k in kolom])
     t.align = "l"
     for b in baris:
         t.add_row([str(sel) for sel in b])
     print(t)
-
-
-def tabel_pesanan(daftar_pesanan, judul=None):
-    """Tampilkan daftar pesanan (dari tiket.json) dalam satu tabel."""
-    baris = []
-    for p in daftar_pesanan:
-        baris.append([
-            p["kode_pesan"],
-            p["username"],
-            f"{p['kategori']} x {p['jumlah']}",
-            rupiah(p["total_bayar"]),
-            p["status"],
-        ])
-    tabel(["Kode", "Username", "Tiket", "Total", "Status"], baris, judul)

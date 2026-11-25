@@ -1,7 +1,7 @@
 import os
 
 from database import baca_data, file_tiket, file_konser, folder_data
-from bantuan import rupiah, garis, waktu_sekarang, PrettyTable
+from bantuan import rupiah, waktu_sekarang, tabel, info, sukses, gagal, peringatan
 
 file_grafik = os.path.join(folder_data, "grafik_penjualan.png")
 file_laporan = os.path.join(folder_data, "laporan_penjualan.txt")
@@ -27,27 +27,25 @@ def hitung_penjualan():
 
 
 def tampilkan_laporan(hasil, pembeli):
-    print("\n=====LAPORAN PENJUALAN TIKET=====")
-    print(f"{'Kategori':<10}{'Terjual':>10}{'Pendapatan':>18}")
-    garis(38)
-    for nama, (terjual, pendapatan) in hasil.items():
-        print(f"{nama:<10}{terjual:>10}{rupiah(pendapatan):>18}")
-    garis(38)
-
     total_tiket = sum(t for t, p in hasil.values())
     total_uang = sum(p for t, p in hasil.values())
-    print(f"{'TOTAL':<10}{total_tiket:>10}{rupiah(total_uang):>18}")
-    print("Jumlah pembeli     :", len(pembeli))
+
+    baris = [[nama, terjual, rupiah(pendapatan)]
+             for nama, (terjual, pendapatan) in hasil.items()]
+    baris.append(["TOTAL", total_tiket, rupiah(total_uang)])
+    tabel(["Kategori", "Terjual", "Pendapatan"], baris, judul="LAPORAN PENJUALAN TIKET")
+
+    info(f"Jumlah pembeli    : {len(pembeli)}")
     if total_tiket > 0:
         terlaris = max(hasil, key=lambda nama: hasil[nama][0])
-        print("Kategori terlaris  :", terlaris)
+        info(f"Kategori terlaris : {terlaris}")
 
 
 def tampilkan_diagram_batang(hasil, tampilkan_jendela=True):
     try:
         import matplotlib.pyplot as plt
     except ImportError:
-        print("Library matplotlib belum terpasang. Jalankan: pip install matplotlib")
+        gagal("Library matplotlib belum terpasang. Jalankan: pip install matplotlib")
         return False
 
     nama_kategori = list(hasil.keys())
@@ -74,7 +72,7 @@ def tampilkan_diagram_batang(hasil, tampilkan_jendela=True):
         try:
             plt.show()
         except Exception:
-            print("Jendela grafik tidak bisa dibuka, grafik tetap disimpan di", file_grafik)
+            peringatan("Jendela grafik tidak bisa dibuka, grafik tetap disimpan di " + file_grafik)
     plt.close()
     return True
 

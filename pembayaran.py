@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 
 from database import baca_data, simpan_data, file_tiket, file_pembayaran
-from bantuan import (clear, rupiah, input_angka, input_wajib, tampilkan_struk, tabel, tekan_enter, id_berikutnya, waktu_sekarang, PrettyTable)
+from bantuan import (clear, rupiah, input_angka, input_wajib, tampilkan_struk, tabel, tekan_enter,
+                     id_berikutnya, waktu_sekarang, cetak_judul, sukses, gagal, peringatan, info)
 from pesanan import cari_pesanan, setujui_pembayaran, batalkan_pesanan
 
 METODE_PEMBAYARAN = ("Transfer BCA",)
@@ -14,7 +15,7 @@ def sisa_detik(pesanan):
     try:
         mulai = datetime.strptime(pesanan["waktu"], FORMAT_WAKTU)
     except (ValueError, KeyError):
-        return BATAS_MENIT * 60          # data waktu rusak: anggap belum habis
+        return BATAS_MENIT * 60          
     batas = mulai + timedelta(minutes=BATAS_MENIT)
     return int((batas - datetime.now()).total_seconds())
 
@@ -37,36 +38,37 @@ def batalkan_kadaluarsa():
 def ambil_pesanan_aktif(kode):
     """Ambil pesanan yang masih boleh dibayar, atau None (dengan pesan alasannya)."""
     if kode in batalkan_kadaluarsa():
-        print(f"Batas waktu pembayaran ({BATAS_MENIT} menit) habis. " "Pesanan otomatis dibatalkan dan kuota dikembalikan.")
+        gagal(f"Batas waktu pembayaran ({BATAS_MENIT} menit) habis. "
+              "Pesanan otomatis dibatalkan dan kuota dikembalikan.")
         return None
     pesanan = cari_pesanan(baca_data(file_tiket), kode)
     if pesanan is None:
-        print("Pesanan tidak ditemukan")
+        gagal("Pesanan tidak ditemukan")
         return None
     if pesanan["status"] != "Menunggu Pembayaran":
-        print("Pesanan ini tidak bisa dibayar (status:", pesanan["status"] + ")")
+        gagal("Pesanan ini tidak bisa dibayar (status: " + pesanan["status"] + ")")
         return None
     return pesanan
 
 
 def isi_data_diri(pesanan):
-    print("\n=====DATA PEMESAN & PEMILIK TIKET=====")
-    print("(ketik 0 pada nama pemesan untuk bayar nanti)")
+    cetak_judul("\n=====DATA PEMESAN & PEMILIK TIKET=====")
+    peringatan("(ketik 0 pada nama pemesan untuk bayar nanti)")
     nama = input_wajib("Nama pemesan : ")
     if nama == "0":
         return None
 
     while True:
         no_hp = input_wajib("No HP pemesan : ")
-        if no_hp.isdigit() and 11 <= len(no_hp) <= 13 and no_hp.startswith("08") :
+        if no_hp.isdigit() and 10 <= len(no_hp) <= 13:
             break
-        print("No HP harus 11-13 digit angka dan diawali 08")
+        gagal("No HP harus 10-13 digit angka")
 
     while True:
         email = input_wajib("Email : ")
         if "@" in email and "." in email.split("@")[-1]:
             break
-        print("Format email tidak valid")
+        gagal("Format email tidak valid")
 
     pemilik = []
     for i in range(1, pesanan["jumlah"] + 1):
@@ -85,9 +87,9 @@ def simpan_data_diri(kode, data):
 
 def pilih_metode():
     while True:
-        print("\n=====PILIH METODE PEMBAYARAN=====")
-        for nomor, metode in enumerate(METODE_PEMBAYARAN, start=1):
-            print(f"{nomor}. {metode}")
+        tabel(["No", "Metode"],
+              [[nomor, metode] for nomor, metode in enumerate(METODE_PEMBAYARAN, start=1)],
+              judul="PILIH METODE PEMBAYARAN")
         print("0. Bayar nanti")
 
         pilihan = input_angka("Pilih metode: ")
@@ -95,7 +97,7 @@ def pilih_metode():
             return None
         if 1 <= pilihan <= len(METODE_PEMBAYARAN):
             return METODE_PEMBAYARAN[pilihan - 1]
-        print("Metode tidak valid")
+        gagal("Metode tidak valid")
 
 
 def catat_pembayaran(pesanan, metode):
@@ -148,7 +150,7 @@ def proses_pembayaran(pesanan, metode):
         if nominal == 0:
             return "ditunda"
         if nominal is None:
-            print("Nominal harus berupa angka. Contoh: 270000 atau Rp270.000")
+            gagal("Nominal harus berupa angka. Contoh: 270000 atau Rp270.000")
             tekan_enter()
             continue
 
@@ -156,7 +158,7 @@ def proses_pembayaran(pesanan, metode):
             return "gagal"
 
         if nominal != pesanan["total_bayar"]:
-            print("Nominal tidak sesuai dengan total bayar, coba lagi.")
+            gagal("Nominal tidak sesuai dengan total bayar, coba lagi.")
             tekan_enter()
             continue
         break
@@ -169,13 +171,13 @@ def proses_pembayaran(pesanan, metode):
 def tampilkan_eticket(kode, metode):
     pesanan = cari_pesanan(baca_data(file_tiket), kode)
     clear()
-    print("===== PEMBAYARAN BERHASIL - E-TICKET =====")
+    sukses("===== PEMBAYARAN BERHASIL - E-TICKET =====")
     tampilkan_struk(pesanan)
-    print("Metode     :", metode)
+    info("Metode : " + metode)
     data = pesanan.get("data_diri")
     if data:
         tabel(["No", "Nama Pemilik Tiket"], [[i, nama] for i, nama in enumerate(data["pemilik_tiket"], start=1)], judul="PEMILIK TIKET")
-        print("Pemesan :", data["nama_pemesan"], "|", data["no_hp"], "|", data["email"])
+        info("Pemesan : " + data["nama_pemesan"] + " | " + data["no_hp"] + " | " + data["email"])
 
 
 def bayar_pesanan(kode):
@@ -185,20 +187,20 @@ def bayar_pesanan(kode):
         tekan_enter()
         return
 
-    print(f"Selesaikan pembayaran dalam {BATAS_MENIT} menit sejak pesan "
-        f"(sisa {format_sisa(sisa_detik(pesanan))}).")
+    peringatan(f"Selesaikan pembayaran dalam {BATAS_MENIT} menit sejak pesan "
+               f"(sisa {format_sisa(sisa_detik(pesanan))}).")
 
     if "data_diri" not in pesanan:
         data = isi_data_diri(pesanan)
         if data is None:
-            print("Pembayaran ditunda. Pesanan bisa dibayar lewat menu Bayar Pesanan.")
+            peringatan("Pembayaran ditunda. Pesanan bisa dibayar lewat menu Bayar Pesanan.")
             tekan_enter()
             return
         simpan_data_diri(kode, data)
 
     metode = pilih_metode()
     if metode is None:
-        print("Pembayaran ditunda. Pesanan bisa dibayar lewat menu Bayar Pesanan.")
+        peringatan("Pembayaran ditunda. Pesanan bisa dibayar lewat menu Bayar Pesanan.")
         tekan_enter()
         return
 
@@ -211,5 +213,5 @@ def bayar_pesanan(kode):
     if hasil == "berhasil":
         tampilkan_eticket(kode, metode)
     elif hasil == "ditunda":
-        print("Pembayaran belum dilakukan. Selesaikan sebelum batas waktu habis.")
+        peringatan("Pembayaran belum dilakukan. Selesaikan sebelum batas waktu habis.")
     tekan_enter()
