@@ -1,34 +1,31 @@
-from database import (baca_data, simpan_data, file_tiket, file_konser,
-                    file_pembayaran)
-from bantuan import (buat_kode_pesanan, buat_kode_unik, hitung_diskon,
-                    id_berikutnya, waktu_sekarang, MAKS_TIKET)
+from bantuan import (MAKS_TIKET, buat_kode_pesanan, buat_kode_unik,
+                     hitung_diskon, waktu_sekarang)
+from database import (baca_data, file_konser, file_pembayaran, file_tiket,
+                      simpan_data)
+
+STATUS_AKTIF = ("Menunggu Pembayaran", "Menunggu Verifikasi", "Lunas")
+
 
 def cari_pesanan(daftar, kode):
-    for p in daftar:
-        if p["kode_pesan"] == kode:
-            return p
-    return None
+    return next((p for p in daftar if p["kode_pesan"] == kode), None)
+
 
 def cari_kategori(konser, nomor):
-    for k in konser["kategori"]:
-        if k["nomor"] == nomor:
-            return k
-    return None
+    return next((k for k in konser["kategori"] if k["nomor"] == nomor), None)
 
 
 def pembayaran_terakhir(kode):
-    hasil = None
-    for b in baca_data(file_pembayaran):
-        if b["kode_pesan"] == kode:
-            hasil = b
-    return hasil
+    for bayar in reversed(baca_data(file_pembayaran)):
+        if bayar["kode_pesan"] == kode:
+            return bayar
+    return None
 
 
 def kembalikan_kuota(nama_kategori, jumlah):
     konser = baca_data(file_konser)
     for k in konser["kategori"]:
         if k["jenis"] == nama_kategori:
-            k["kuota"] = k["kuota"] + jumlah
+            k["kuota"] += jumlah
     simpan_data(file_konser, konser)
 
 
@@ -39,7 +36,7 @@ def buat_pesanan(username, nomor_kategori, jumlah):
     kategori = cari_kategori(konser, nomor_kategori)
     if kategori is None:
         raise ValueError("Kategori tidak valid")
-    if jumlah < 1 or jumlah > MAKS_TIKET:
+    if not 1 <= jumlah <= MAKS_TIKET:
         raise ValueError(f"Jumlah tiket harus 1-{MAKS_TIKET}")
     if jumlah > kategori["kuota"]:
         raise ValueError("Kuota tidak cukup")
@@ -63,34 +60,9 @@ def buat_pesanan(username, nomor_kategori, jumlah):
     daftar_tiket.append(pesanan)
     simpan_data(file_tiket, daftar_tiket)
 
-    kategori["kuota"] = kategori["kuota"] - jumlah
+    kategori["kuota"] -= jumlah
     simpan_data(file_konser, konser)
     return pesanan
-
-
-def kirim_pembayaran(kode, nominal):
-    daftar_tiket = baca_data(file_tiket)
-    daftar_bayar = baca_data(file_pembayaran)
-
-    pesanan = cari_pesanan(daftar_tiket, kode)
-    if pesanan is None:
-        raise ValueError("Pesanan tidak ditemukan")
-    if pesanan["status"] != "Menunggu Pembayaran":
-        raise ValueError("Pesanan ini tidak sedang menunggu pembayaran")
-    if nominal != pesanan["total_bayar"]:
-        raise ValueError("Nominal tidak sesuai dengan total bayar")
-
-    daftar_bayar.append({
-        "id": id_berikutnya(daftar_bayar),
-        "kode_pesan": kode,
-        "username": pesanan["username"],
-        "nominal": nominal,
-        "waktu": waktu_sekarang(),
-        "status": "Menunggu Verifikasi",
-    })
-    pesanan["status"] = "Menunggu Verifikasi"
-    simpan_data(file_pembayaran, daftar_bayar)
-    simpan_data(file_tiket, daftar_tiket)
 
 
 def setujui_pembayaran(kode):
@@ -98,9 +70,9 @@ def setujui_pembayaran(kode):
     daftar_bayar = baca_data(file_pembayaran)
     pesanan = cari_pesanan(daftar_tiket, kode)
 
-    for b in daftar_bayar:
-        if b["kode_pesan"] == kode and b["status"] == "Menunggu Verifikasi":
-            b["status"] = "Terverifikasi"
+    for bayar in daftar_bayar:
+        if bayar["kode_pesan"] == kode and bayar["status"] == "Menunggu Verifikasi":
+            bayar["status"] = "Terverifikasi"
     pesanan["status"] = "Lunas"
     pesanan["kode_unik"] = buat_kode_unik(daftar_tiket)
     pesanan["status_tiket"] = "Active"
@@ -113,9 +85,9 @@ def tolak_pembayaran(kode):
     daftar_bayar = baca_data(file_pembayaran)
     pesanan = cari_pesanan(daftar_tiket, kode)
 
-    for b in daftar_bayar:
-        if b["kode_pesan"] == kode and b["status"] == "Menunggu Verifikasi":
-            b["status"] = "Ditolak"
+    for bayar in daftar_bayar:
+        if bayar["kode_pesan"] == kode and bayar["status"] == "Menunggu Verifikasi":
+            bayar["status"] = "Ditolak"
     pesanan["status"] = "Ditolak"
     simpan_data(file_pembayaran, daftar_bayar)
     simpan_data(file_tiket, daftar_tiket)
@@ -125,6 +97,8 @@ def tolak_pembayaran(kode):
 def batalkan_pesanan(kode):
     daftar_tiket = baca_data(file_tiket)
     pesanan = cari_pesanan(daftar_tiket, kode)
+    if pesanan is None:
+        return
     pesanan["status"] = "Dibatalkan"
     pesanan["status_tiket"] = "-"
     simpan_data(file_tiket, daftar_tiket)

@@ -18,7 +18,7 @@
         "password": "nurul123",
         "nama": "nurul azizah",
         "no_hp": "081234329592",
-        "role": "User"
+        "role": "Admin"
     },
     {
         "username": "nurfadilla",
@@ -36,10 +36,10 @@
     },
     {
         "username": "gian",
-        "password": "gian123",
+        "password": "gian456",
         "nama": "gian anata",
-        "no_hp": "082112122121",
-        "role" : "user"
+        "no_hp": "081244226688",
+        "role": "User"
     },
     {
         "username": "nurfadila",

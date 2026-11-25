@@ -1,16 +1,23 @@
+import getpass
+import os
 import random
 import string
-import os
 from datetime import datetime
 
-from colorama import init, Fore, Style
+from colorama import Fore, Style, init
 from prettytable import PrettyTable
 
 from database import baca_data, file_diskon
 
+try:
+    import pwinput
+except ImportError:
+    pwinput = None
+
 init(autoreset=True)
 
 MAKS_TIKET = 4
+FORMAT_WAKTU = "%Y-%m-%d %H:%M:%S"
 
 WARNA_STATUS = {
     "Lunas": Fore.GREEN,
@@ -51,15 +58,31 @@ def warna_status(status):
 
 
 def clear():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    os.system("cls" if os.name == "nt" else "clear")
 
 
-def garis(panjang=40, simbol="-"):
-    print(simbol * panjang)
+def tekan_enter():
+    input("\nTekan Enter untuk lanjut...")
+
+
+def cetak_menu(daftar_opsi):
+    for nomor, teks in enumerate(daftar_opsi, start=1):
+        print(f"{nomor}. {teks}")
+
+
+def tabel(kolom, baris, judul=None):
+    if judul:
+        print()
+        cetak_judul(f"====={judul}=====")
+    t = PrettyTable([Fore.CYAN + Style.BRIGHT + str(k) + Style.RESET_ALL for k in kolom])
+    t.align = "l"
+    for b in baris:
+        t.add_row([str(sel) for sel in b])
+    print(t)
 
 
 def waktu_sekarang():
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return datetime.now().strftime(FORMAT_WAKTU)
 
 
 def rupiah(angka):
@@ -67,7 +90,6 @@ def rupiah(angka):
 
 
 def input_angka(pesan):
-    
     try:
         return int(input(pesan).strip())
     except ValueError:
@@ -75,7 +97,6 @@ def input_angka(pesan):
 
 
 def input_angka_kosong(pesan):
-    
     teks = input(pesan).strip()
     if teks == "":
         return None
@@ -86,7 +107,6 @@ def input_angka_kosong(pesan):
 
 
 def input_wajib(pesan):
-    
     while True:
         teks = input(pesan).strip()
         if teks != "":
@@ -94,48 +114,51 @@ def input_wajib(pesan):
         gagal("Tidak boleh kosong!")
 
 
+def input_no_hp(pesan="No HP : ", boleh_kosong=False):
+    while True:
+        no_hp = input(pesan).strip()
+        if boleh_kosong and no_hp == "":
+            return ""
+        if no_hp.isascii() and no_hp.isdigit() and 11 <= len(no_hp) <= 13 \
+                and no_hp.startswith("08"):
+            return no_hp
+        gagal("No HP harus 11-13 digit angka dan diawali 08!")
+
+
+def input_password(pesan="masukkan password anda: "):
+    if pwinput is not None:
+        return pwinput.pwinput(pesan, mask="*").strip()
+    return getpass.getpass(pesan).strip()
+
+
 def tanya_ya_tidak(pesan):
     while True:
         jawab = input(pesan + " (y/n): ").strip().lower()
-        if jawab == "y" or jawab == "ya":
+        if jawab in ("y", "ya"):
             return True
-        if jawab == "n" or jawab == "t" or jawab == "tidak":
+        if jawab in ("n", "t", "tidak"):
             return False
-        peringatan("jawab dengan y atau n ")
+        peringatan("jawab dengan y atau n")
 
 
 def id_berikutnya(daftar):
-    terbesar = 0
-    for d in daftar:
-        if d["id"] > terbesar:
-            terbesar = d["id"]
-    return terbesar + 1
+    return max((d["id"] for d in daftar), default=0) + 1
 
 
 def buat_kode_pesanan(daftar_tiket):
+    terpakai = {t["kode_pesan"] for t in daftar_tiket}
     while True:
-        kode = "PSN" + str(random.randint(1000, 9999))
-
-        sudah_dipakai = False
-        for tiket in daftar_tiket:
-            if tiket["kode_pesan"] == kode:
-                sudah_dipakai = True
-
-        if not sudah_dipakai:
+        kode = f"PSN{random.randint(1000, 9999)}"
+        if kode not in terpakai:
             return kode
 
 
-def buat_kode_unik(daftar_tiket=None):
-    
-    if daftar_tiket is None:
-        daftar_tiket = []
-    kode_terpakai = {t.get("kode_unik") for t in daftar_tiket}  
-    huruf_dan_angka = string.ascii_uppercase + string.digits
+def buat_kode_unik(daftar_tiket=()):
+    terpakai = {t.get("kode_unik") for t in daftar_tiket}
+    karakter = string.ascii_uppercase + string.digits
     while True:
-        kode = "TKT-"
-        for i in range(6):
-            kode = kode + random.choice(huruf_dan_angka)
-        if kode not in kode_terpakai:
+        kode = "TKT-" + "".join(random.choices(karakter, k=6))
+        if kode not in terpakai:
             return kode
 
 
@@ -151,12 +174,30 @@ def hitung_diskon(jumlah, harga_awal):
     return harga_awal * persen_diskon(jumlah) // 100
 
 
+def tampilkan_info_konser(konser):
+    tabel(["Keterangan", "Isi"], [
+        ["Judul", konser["judul"]],
+        ["Tanggal", konser["tanggal"]],
+        ["Waktu", konser["waktu"]],
+        ["Lokasi", konser["lokasi"]],
+    ], judul="INFO KONSER")
+
+
+def tampilkan_katalog(konser):
+    tabel(["No", "Kategori", "Harga", "Sisa kuota"],
+          [[k["nomor"], k["jenis"], rupiah(k["harga"]), k["kuota"]]
+           for k in konser["kategori"]],
+          judul="KATALOG TIKET")
+
+
 def tampilkan_rincian(pesanan):
+    harga_awal = pesanan["harga_awal"]
+    persen = pesanan["diskon"] * 100 // harga_awal if harga_awal else 0
     tabel(["Keterangan", "Isi"], [
         ["Kategori", pesanan["kategori"]],
         ["Jumlah", pesanan["jumlah"]],
-        ["Harga awal", rupiah(pesanan["harga_awal"])],
-        ["Diskon", rupiah(pesanan["diskon"])],
+        ["Harga awal", rupiah(harga_awal)],
+        ["Diskon", f"{rupiah(pesanan['diskon'])} ({persen}%)"],
         ["Total bayar", rupiah(pesanan["total_bayar"])],
     ], judul="RINCIAN PEMESANAN")
 
@@ -164,7 +205,7 @@ def tampilkan_rincian(pesanan):
 def tampilkan_struk(pesanan):
     tabel(["Keterangan", "Isi"], [
         ["Kode pesan", pesanan["kode_pesan"]],
-        ["Kode unik", pesanan["kode_unik"] if pesanan["kode_unik"] else "-"],
+        ["Kode unik", pesanan["kode_unik"] or "-"],
         ["Pemesan", pesanan["username"]],
         ["Kategori", pesanan["kategori"]],
         ["Jumlah", pesanan["jumlah"]],
@@ -175,38 +216,7 @@ def tampilkan_struk(pesanan):
     ], judul="STRUK PEMESANAN")
 
 
-def tampilkan_baris_pesanan(p):
-    print(f"{p['kode_pesan']} | {p['username']} | {p['kategori']} x {p['jumlah']} | "
-        f"{rupiah(p['total_bayar'])} | {warna_status(p['status'])}")
-
-
 def tampilkan_daftar_pesanan(daftar):
-    """Tabel ringkas untuk banyak pesanan sekaligus."""
     tabel(["Kode", "Username", "Kategori", "Jumlah", "Total", "Status"],
           [[p["kode_pesan"], p["username"], p["kategori"], p["jumlah"],
             rupiah(p["total_bayar"]), warna_status(p["status"])] for p in daftar])
-
-
-
-def tekan_enter():
-    input("\nTekan Enter untuk lanjut...")
-
-
-def input_password(pesan="masukkan password anda: "):
-    try:
-        import pwinput
-        return pwinput.pwinput(pesan, mask="*").strip()
-    except ImportError:
-        import getpass
-        return getpass.getpass(pesan).strip()
-
-
-def tabel(kolom, baris, judul=None):
-    if judul:
-        print()
-        cetak_judul(f"====={judul}=====")
-    t = PrettyTable([Fore.CYAN + Style.BRIGHT + str(k) + Style.RESET_ALL for k in kolom])
-    t.align = "l"
-    for b in baris:
-        t.add_row([str(sel) for sel in b])
-    print(t)

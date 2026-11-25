@@ -1,13 +1,14 @@
-from database import baca_data, simpan_data, file_akun
-from bantuan import clear, input_password, sukses, gagal, peringatan, cetak_judul
+from bantuan import (cetak_judul, clear, gagal, input_no_hp, input_password,
+                     input_wajib, sukses)
+from database import baca_data, file_akun, simpan_data
+
+MAKS_PERCOBAAN = 3
 
 
 def login():
-    daftar_akun = baca_data(file_akun)
-    akun_per_username = {akun["username"]: akun for akun in daftar_akun}
+    akun_per_username = {a["username"]: a for a in baca_data(file_akun)}
 
-    percobaan = 0
-    while percobaan < 3:
+    for percobaan in range(1, MAKS_PERCOBAAN + 1):
         clear()
         cetak_judul("=====LOGIN=====")
         username = input("masukkan username anda: ").strip()
@@ -18,31 +19,28 @@ def login():
             sukses("Selamat login berhasil")
             return akun
 
-        percobaan += 1
-        gagal(f"maaf login gagal username atau password salah (percobaan {percobaan}/3)")
-        if percobaan < 3:
+        gagal(f"maaf login gagal username atau password salah "
+              f"(percobaan {percobaan}/{MAKS_PERCOBAAN})")
+        if percobaan < MAKS_PERCOBAAN:
             input("Tekan Enter untuk coba lagi...")
 
-    gagal("gagal login 3 kali")
+    gagal(f"gagal login {MAKS_PERCOBAAN} kali")
     return None
 
 
 def register():
     clear()
     daftar_akun = baca_data(file_akun)
-    username_terdaftar = {akun["username"] for akun in daftar_akun}
+    username_terdaftar = {a["username"] for a in daftar_akun}
     cetak_judul("=====REGISTER=====")
 
     while True:
-        username = input("username: ").strip()
-        if username == "":
-            gagal("Username tidak boleh kosong!")
-        elif username in username_terdaftar:
-            gagal("Username sudah dipakai!")
-        else:
+        username = input_wajib("username: ")
+        if username not in username_terdaftar:
             break
+        gagal("Username sudah dipakai!")
 
-    nama = input("masukkan nama anda : ").strip()
+    nama = input_wajib("masukkan nama anda : ")
 
     while True:
         password = input_password("masukkan password anda : ")
@@ -54,26 +52,14 @@ def register():
         else:
             break
 
-    while True:
-        no_hp = input("masukkan no HP anda : ").strip()
-        try:
-            int(no_hp)
-            if not 10 <= len(no_hp) <= 13:
-                raise ValueError("panjang no HP salah")
-            break
-        except ValueError:
-            gagal("No HP harus berupa 10-13 digit angka!")
-
-    if nama == "":
-        peringatan("Nama tidak boleh kosong, register dibatalkan.")
-        return
+    no_hp = input_no_hp("masukkan no HP anda : ")
 
     daftar_akun.append({
         "username": username,
         "password": password,
         "nama": nama,
         "no_hp": no_hp,
-        "role": "User"
+        "role": "User",
     })
     simpan_data(file_akun, daftar_akun)
     sukses("Selamat Register berhasil silahkan login ke akun anda")

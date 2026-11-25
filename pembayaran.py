@@ -1,20 +1,24 @@
 from datetime import datetime, timedelta
-from database import baca_data, simpan_data, file_tiket, file_pembayaran
-from bantuan import (clear, rupiah, input_angka, input_wajib, tampilkan_struk, tabel, tekan_enter,
-id_berikutnya, waktu_sekarang, cetak_judul, sukses, gagal, peringatan, info)
-from pesanan import cari_pesanan, setujui_pembayaran, batalkan_pesanan
+
+from bantuan import (FORMAT_WAKTU, cetak_judul, clear, gagal, id_berikutnya,
+                     info, input_angka_kosong, input_no_hp, input_wajib,
+                     peringatan, rupiah, sukses, tabel, tampilkan_struk,
+                     tekan_enter, waktu_sekarang)
+from database import baca_data, file_pembayaran, file_tiket, simpan_data
+from pesanan import (batalkan_pesanan, cari_pesanan, setujui_pembayaran)
 
 METODE_PEMBAYARAN = ("Transfer BCA",)
-REKENING_TUJUAN = {"bank": "BCA", "nomor": "1234567890", "atas_nama": "Panitia Konser Hindia"}
+REKENING_TUJUAN = {"bank": "BCA", "nomor": "1234567890",
+                   "atas_nama": "Panitia Konser Hindia"}
 BATAS_MENIT = 15
-FORMAT_WAKTU = "%Y-%m-%d %H:%M:%S"
+PESAN_DITUNDA = "Pembayaran ditunda. Pesanan bisa dibayar lewat menu Bayar Pesanan."
 
 
 def sisa_detik(pesanan):
     try:
         mulai = datetime.strptime(pesanan["waktu"], FORMAT_WAKTU)
     except (ValueError, KeyError):
-        return BATAS_MENIT * 60          
+        return BATAS_MENIT * 60
     batas = mulai + timedelta(minutes=BATAS_MENIT)
     return int((batas - datetime.now()).total_seconds())
 
@@ -25,20 +29,17 @@ def format_sisa(detik):
 
 
 def batalkan_kadaluarsa():
-    """Batalkan semua pesanan 'Menunggu Pembayaran' yang lewat 15 menit.
-    batalkan_pesanan() mengembalikan kuota. Mengembalikan daftar kode yang dibatalkan."""
     kadaluarsa = [t["kode_pesan"] for t in baca_data(file_tiket)
-                if t["status"] == "Menunggu Pembayaran" and sisa_detik(t) <= 0]
+                  if t["status"] == "Menunggu Pembayaran" and sisa_detik(t) <= 0]
     for kode in kadaluarsa:
         batalkan_pesanan(kode)
     return kadaluarsa
 
 
 def ambil_pesanan_aktif(kode):
-    """Ambil pesanan yang masih boleh dibayar, atau None (dengan pesan alasannya)."""
     if kode in batalkan_kadaluarsa():
         gagal(f"Batas waktu pembayaran ({BATAS_MENIT} menit) habis. "
-        "Pesanan otomatis dibatalkan dan kuota dikembalikan.")
+              "Pesanan otomatis dibatalkan dan kuota dikembalikan.")
         return None
     pesanan = cari_pesanan(baca_data(file_tiket), kode)
     if pesanan is None:
@@ -50,29 +51,25 @@ def ambil_pesanan_aktif(kode):
     return pesanan
 
 
-def isi_data_diri(pesanan):
-    cetak_judul("\n=====DATA PEMESAN & PEMILIK TIKET=====")
-    peringatan("(ketik 0 pada nama pemesan untuk bayar nanti)")
-    nama = input_wajib("Nama pemesan : ")
-    if nama == "0":
-        return None
-
+def input_email(pesan="Email : "):
     while True:
-        no_hp = input_wajib("No HP pemesan : ")
-        if no_hp.isdigit() and 10 <= len(no_hp) <= 13 and 
-        no_hp.startswith("08"):
-        break
-        print("No HP harus 10-13 digit angka dan diawali 08")
-
-    while True:
-        email = input_wajib("Email : ")
+        email = input_wajib(pesan)
         if "@" in email and "." in email.split("@")[-1]:
-            break
+            return email
         gagal("Format email tidak valid")
 
-    pemilik = []
-    for i in range(1, pesanan["jumlah"] + 1):
-        pemilik.append(input_wajib(f"Nama pemilik tiket {i} : "))
+
+def isi_data_diri(pesanan):
+    cetak_judul("\n=====DATA PEMESAN & PEMILIK TIKET=====")
+    peringatan("(tekan Enter pada nama pemesan untuk bayar nanti)")
+    nama = input("Nama pemesan : ").strip()
+    if nama == "":
+        return None
+
+    no_hp = input_no_hp("No HP pemesan : ")
+    email = input_email()
+    pemilik = [input_wajib(f"Nama pemilik tiket {i} : ")
+               for i in range(1, pesanan["jumlah"] + 1)]
 
     return {"nama_pemesan": nama, "no_hp": no_hp, "email": email,
             "pemilik_tiket": pemilik}
@@ -80,20 +77,19 @@ def isi_data_diri(pesanan):
 
 def simpan_data_diri(kode, data):
     daftar_tiket = baca_data(file_tiket)
-    pesanan = cari_pesanan(daftar_tiket, kode)
-    pesanan["data_diri"] = data
+    cari_pesanan(daftar_tiket, kode)["data_diri"] = data
     simpan_data(file_tiket, daftar_tiket)
 
 
 def pilih_metode():
     while True:
         tabel(["No", "Metode"],
-              [[nomor, metode] for nomor, metode in enumerate(METODE_PEMBAYARAN, start=1)],
+              list(enumerate(METODE_PEMBAYARAN, start=1)),
               judul="PILIH METODE PEMBAYARAN")
-        print("0. Bayar nanti")
+        print("Enter. Bayar nanti")
 
-        pilihan = input_angka("Pilih metode: ")
-        if pilihan == 0:
+        pilihan = input_angka_kosong("Pilih metode: ")
+        if pilihan is None:
             return None
         if 1 <= pilihan <= len(METODE_PEMBAYARAN):
             return METODE_PEMBAYARAN[pilihan - 1]
@@ -120,18 +116,18 @@ def catat_pembayaran(pesanan, metode):
 
 def input_nominal(pesan):
     """Terima '270000', '270.000', 'Rp270.000', 'Rp 270.000', dll.
-    Mengembalikan angka (int), atau None kalau bukan angka."""
+    Mengembalikan int, None jika hanya Enter, atau -1 jika bukan angka."""
     teks = input(pesan).strip().lower()
+    if teks == "":
+        return None
     for buang in ("rp", ".", ",", " "):
         teks = teks.replace(buang, "")
-    try:
+    if teks.isascii() and teks.isdigit():
         return int(teks)
-    except ValueError:
-        return None
+    return -1
 
 
 def proses_pembayaran(pesanan, metode):
-    """Mengembalikan 'berhasil', 'ditunda', atau 'gagal' (kadaluarsa/status berubah)."""
     kode = pesanan["kode_pesan"]
     while True:
         clear()
@@ -146,10 +142,10 @@ def proses_pembayaran(pesanan, metode):
         ], judul="TUJUAN TRANSFER")
 
         nominal = input_nominal("Masukkan nominal yang ditransfer "
-                                "(contoh: 270000 atau Rp270.000, 0 untuk bayar nanti): ")
-        if nominal == 0:
-            return "ditunda"
+                                "(contoh: 270000 atau Rp270.000, Enter untuk bayar nanti): ")
         if nominal is None:
+            return "ditunda"
+        if nominal == -1:
             gagal("Nominal harus berupa angka. Contoh: 270000 atau Rp270.000")
             tekan_enter()
             continue
@@ -176,8 +172,10 @@ def tampilkan_eticket(kode, metode):
     info("Metode : " + metode)
     data = pesanan.get("data_diri")
     if data:
-        tabel(["No", "Nama Pemilik Tiket"], [[i, nama] for i, nama in enumerate(data["pemilik_tiket"], start=1)], judul="PEMILIK TIKET")
-        info("Pemesan : " + data["nama_pemesan"] + " | " + data["no_hp"] + " | " + data["email"])
+        tabel(["No", "Nama Pemilik Tiket"],
+              list(enumerate(data["pemilik_tiket"], start=1)),
+              judul="PEMILIK TIKET")
+        info(f"Pemesan : {data['nama_pemesan']} | {data['no_hp']} | {data['email']}")
 
 
 def bayar_pesanan(kode):
@@ -193,14 +191,14 @@ def bayar_pesanan(kode):
     if "data_diri" not in pesanan:
         data = isi_data_diri(pesanan)
         if data is None:
-            peringatan("Pembayaran ditunda. Pesanan bisa dibayar lewat menu Bayar Pesanan.")
+            peringatan(PESAN_DITUNDA)
             tekan_enter()
             return
         simpan_data_diri(kode, data)
 
     metode = pilih_metode()
     if metode is None:
-        peringatan("Pembayaran ditunda. Pesanan bisa dibayar lewat menu Bayar Pesanan.")
+        peringatan(PESAN_DITUNDA)
         tekan_enter()
         return
 

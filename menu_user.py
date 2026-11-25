@@ -1,84 +1,80 @@
-from database import baca_data, simpan_data, file_tiket, file_pembatalan
-from bantuan import (rupiah, id_berikutnya, waktu_sekarang, clear, tekan_enter, tabel,
-cetak_judul, sukses, gagal, peringatan, info, warna_status)
+from bantuan import (cetak_judul, cetak_menu, clear, gagal, id_berikutnya, info,
+                     input_wajib, peringatan, rupiah, sukses, tabel, tekan_enter,
+                     waktu_sekarang, warna_status)
 from beli_tiket import beli_tiket
-from pembayaran import batalkan_kadaluarsa, sisa_detik, format_sisa, bayar_pesanan
+from database import baca_data, file_pembatalan, file_tiket, simpan_data
+from pembayaran import bayar_pesanan, batalkan_kadaluarsa, format_sisa, sisa_detik
+from pesanan import STATUS_AKTIF
 
-
-STATUS_BISA_BATAL = ("Menunggu Pembayaran", "Menunggu Verifikasi", "Lunas")
+OPSI_MENU = ["Beli Tiket", "Bayar Pesanan", "Status Pemesanan", "Cek Tiket",
+             "Riwayat", "Ajukan Pembatalan", "Logout"]
 
 
 def status_pemesanan(akun):
     clear()
     batalkan_kadaluarsa()
-    daftar_tiket = baca_data(file_tiket)
+    milik_user = [t for t in baca_data(file_tiket) if t["username"] == akun["username"]]
 
-    milik_user = [t for t in daftar_tiket if t["username"] == akun["username"]]
-    if len(milik_user) == 0:
+    if not milik_user:
         cetak_judul("=====STATUS PEMESANAN=====")
         peringatan("Belum ada pemesanan.")
     else:
         tabel(["Kode", "Kategori", "Jumlah", "Harga awal", "Diskon", "Total", "Status"],
-        [[t["kode_pesan"], t["kategori"], t["jumlah"], rupiah(t["harga_awal"]),
+              [[t["kode_pesan"], t["kategori"], t["jumlah"], rupiah(t["harga_awal"]),
                 rupiah(t["diskon"]), rupiah(t["total_bayar"]), warna_status(t["status"])]
-                for t in milik_user],
-                judul="STATUS PEMESANAN")
+               for t in milik_user],
+              judul="STATUS PEMESANAN")
     tekan_enter()
 
 
 def bayar_pesanan_tertunda(akun):
     clear()
     batalkan_kadaluarsa()
-    daftar_tiket = baca_data(file_tiket)
-
-    menunggu = [t for t in daftar_tiket
+    menunggu = [t for t in baca_data(file_tiket)
                 if t["username"] == akun["username"] and t["status"] == "Menunggu Pembayaran"]
 
-    if len(menunggu) == 0:
+    if not menunggu:
         cetak_judul("=====BAYAR PESANAN=====")
         peringatan("Tidak ada pesanan yang menunggu pembayaran.")
         tekan_enter()
         return
 
     tabel(["Kode", "Kategori", "Jumlah", "Total", "Sisa waktu"],
-    [[t["kode_pesan"], t["kategori"], t["jumlah"], rupiah(t["total_bayar"]),
-    format_sisa(sisa_detik(t))] for t in menunggu],
-    judul="BAYAR PESANAN")
+          [[t["kode_pesan"], t["kategori"], t["jumlah"], rupiah(t["total_bayar"]),
+            format_sisa(sisa_detik(t))] for t in menunggu],
+          judul="BAYAR PESANAN")
 
-    kode = input("Masukkan kode pesan (0 untuk kembali): ").strip().upper()
-    if kode == "0":
+    kode = input("Masukkan kode pesan (Enter untuk kembali): ").strip().upper()
+    if kode == "":
         return
 
-    for t in menunggu:
-        if t["kode_pesan"] == kode:
-            bayar_pesanan(kode)
-            return
+    if any(t["kode_pesan"] == kode for t in menunggu):
+        bayar_pesanan(kode)
+        return
     gagal("Kode pesan tidak valid.")
     tekan_enter()
 
 
-def cek_tiket():
+def cek_tiket(akun):
+    """Cek status tiket milik sendiri berdasarkan kode unik."""
     clear()
     daftar_tiket = baca_data(file_tiket)
+    milik_user = [t for t in daftar_tiket if t["username"] == akun["username"]]
 
     cetak_judul("=====CEK TIKET=====")
     while True:
-        kode_unik = input("Masukkan kode unik (0 untuk kembali): ").strip().upper()
-
-        if kode_unik == "0":
+        kode_unik = input("Masukkan kode unik (Enter untuk kembali): ").strip().upper()
+        if kode_unik == "":
             return
 
-        tiket_ketemu = None
-        for tiket in daftar_tiket:
-            if tiket["kode_unik"] == kode_unik and kode_unik != "":
-                tiket_ketemu = tiket
-
-        if tiket_ketemu is not None:
+        tiket = next((t for t in milik_user
+                      if t["kode_unik"] and t["kode_unik"] == kode_unik), None)
+        if tiket is not None:
             tabel(["Keterangan", "Isi"], [
-                ["Kode pesan", tiket_ketemu["kode_pesan"]],
-                ["Kategori", f"{tiket_ketemu['kategori']} x {tiket_ketemu['jumlah']}"],
-                ["Status", warna_status(tiket_ketemu["status"])],
-                ["Status tiket", warna_status(tiket_ketemu["status_tiket"])],
+                ["Kode pesan", tiket["kode_pesan"]],
+                ["Kategori", f"{tiket['kategori']} x {tiket['jumlah']}"],
+                ["Status", warna_status(tiket["status"])],
+                ["Status tiket", warna_status(tiket["status_tiket"])],
             ], judul="STATUS TIKET")
             tekan_enter()
             return
@@ -88,20 +84,18 @@ def cek_tiket():
 
 def riwayat_pembelian(akun):
     clear()
-    daftar_tiket = baca_data(file_tiket)
+    lunas = [t for t in baca_data(file_tiket)
+             if t["username"] == akun["username"] and t["status"] == "Lunas"]
 
-    lunas = [t for t in daftar_tiket
-    if t["username"] == akun["username"] and t["status"] == "Lunas"]
-
-    if len(lunas) == 0:
+    if not lunas:
         cetak_judul("=== RIWAYAT PEMBELIAN ===")
         peringatan("Belum ada riwayat pembelian")
     else:
         tabel(["No", "Kode pesan", "Kategori", "Jumlah", "Total", "Kode unik"],
-        [[no, t["kode_pesan"], t["kategori"], t["jumlah"],
-        rupiah(t["total_bayar"]), t["kode_unik"]]
-        for no, t in enumerate(lunas, start=1)],
-        judul="RIWAYAT PEMBELIAN")
+              [[no, t["kode_pesan"], t["kategori"], t["jumlah"],
+                rupiah(t["total_bayar"]), t["kode_unik"]]
+               for no, t in enumerate(lunas, start=1)],
+              judul="RIWAYAT PEMBELIAN")
     tekan_enter()
 
 
@@ -111,51 +105,43 @@ def ajukan_pembatalan(akun):
     daftar_batal = baca_data(file_pembatalan)
 
     bisa_dibatalkan = [t for t in daftar_tiket
-    if t["username"] == akun["username"]
-    and t["status"] in STATUS_BISA_BATAL
-    and t["status_tiket"] != "Used"]
+                       if t["username"] == akun["username"]
+                       and t["status"] in STATUS_AKTIF
+                       and t["status_tiket"] != "Used"]
 
-    if len(bisa_dibatalkan) == 0:
+    if not bisa_dibatalkan:
         cetak_judul("=====AJUKAN PEMBATALAN TIKET=====")
         peringatan("Tidak ada pesanan yang bisa dibatalkan")
         tekan_enter()
         return
 
     tabel(["Kode", "Kategori", "Jumlah", "Total", "Status"],
-    [[t["kode_pesan"], t["kategori"], t["jumlah"], rupiah(t["total_bayar"]),
-    warna_status(t["status"])] for t in bisa_dibatalkan],
-    judul="AJUKAN PEMBATALAN TIKET")
+          [[t["kode_pesan"], t["kategori"], t["jumlah"], rupiah(t["total_bayar"]),
+            warna_status(t["status"])] for t in bisa_dibatalkan],
+          judul="AJUKAN PEMBATALAN TIKET")
 
-    kode = input("masukkan kode pesanan (input 0 untuk kembali): ").strip().upper()
-    if kode == "0":
+    kode = input("masukkan kode pesanan (Enter untuk kembali): ").strip().upper()
+    if kode == "":
         return
 
-    pesanan = None
-    for tiket in bisa_dibatalkan:
-        if tiket["kode_pesan"] == kode:
-            pesanan = tiket
-    if pesanan is None:
+    if not any(t["kode_pesan"] == kode for t in bisa_dibatalkan):
         gagal("maaf kode tidak valid")
         tekan_enter()
         return
 
-    for b in daftar_batal:
-        if b["kode_pesan"] == kode and b["status"] == "Menunggu":
-            peringatan("permintaan pembatalan untuk pesanan ini sudah diajukan")
-            tekan_enter()
-            return
+    if any(b["kode_pesan"] == kode and b["status"] == "Menunggu" for b in daftar_batal):
+        peringatan("permintaan pembatalan untuk pesanan ini sudah diajukan")
+        tekan_enter()
+        return
 
-    alasan = ""
-    while alasan == "":
-        alasan = input("alasan pembatalan: ").strip()
-
+    alasan = input_wajib("alasan pembatalan: ")
     daftar_batal.append({
         "id": id_berikutnya(daftar_batal),
         "kode_pesan": kode,
         "username": akun["username"],
         "alasan": alasan,
         "waktu": waktu_sekarang(),
-        "status": "Menunggu"
+        "status": "Menunggu",
     })
     simpan_data(file_pembatalan, daftar_batal)
     sukses("permintaan pembatalan terkirim, menunggu persetujuan admin")
@@ -163,35 +149,27 @@ def ajukan_pembatalan(akun):
 
 
 def menu_user(akun):
+    aksi = {
+        "1": lambda: beli_tiket(akun),
+        "2": lambda: bayar_pesanan_tertunda(akun),
+        "3": lambda: status_pemesanan(akun),
+        "4": lambda: cek_tiket(akun),
+        "5": lambda: riwayat_pembelian(akun),
+        "6": lambda: ajukan_pembatalan(akun),
+    }
     while True:
         batalkan_kadaluarsa()
         clear()
         cetak_judul("=== MENU ===")
         print("Halo selamat datang,", akun["nama"])
-        print("1. Beli Tiket")
-        print("2. Bayar Pesanan")
-        print("3. Status Pemesanan")
-        print("4. Cek Tiket")
-        print("5. Riwayat")
-        print("6. Ajukan Pembatalan")
-        print("7. Logout")
-        menu = input("Pilih menu: ").strip()
+        cetak_menu(OPSI_MENU)
+        pilihan = input("Pilih menu: ").strip()
 
-        if menu == "1":
-            beli_tiket(akun)
-        elif menu == "2":
-            bayar_pesanan_tertunda(akun)
-        elif menu == "3":
-            status_pemesanan(akun)
-        elif menu == "4":
-            cek_tiket()
-        elif menu == "5":
-            riwayat_pembelian(akun)
-        elif menu == "6":
-            ajukan_pembatalan(akun)
-        elif menu == "7":
+        if pilihan == "7":
             info("Berhasil logout.")
             break
+        if pilihan in aksi:
+            aksi[pilihan]()
         else:
             gagal("Menu tidak valid")
             tekan_enter()

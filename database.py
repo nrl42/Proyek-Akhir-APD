@@ -1,23 +1,23 @@
+import copy
 import json
 import os
-import copy
 
 folder_data = "data"
 file_akun = "data/akun_user.json"
-file_tiket = "data/tiket.json"            
-file_konser = "data/konser.json"          
-file_diskon = "data/diskon.json"          
-file_pembayaran = "data/pembayaran.json" 
-file_pembatalan = "data/pembatalan.json"  
+file_tiket = "data/tiket.json"
+file_konser = "data/konser.json"
+file_diskon = "data/diskon.json"
+file_pembayaran = "data/pembayaran.json"
+file_pembatalan = "data/pembatalan.json"
 
 DATA_AWAL = {
     file_akun: [
         {"username": "laharah", "password": "laharah123", "nama": "nurdilpuj",
-        "no_hp": "080000000001", "role": "Admin"},
+         "no_hp": "080000000001", "role": "Admin"},
         {"username": "petugas", "password": "petugas123", "nama": "rulaja",
-        "no_hp": "080000000002", "role": "Petugas"},
+         "no_hp": "080000000002", "role": "Petugas"},
         {"username": "nurul", "password": "nurul123", "nama": "nurul azizah",
-        "no_hp": "081234329592", "role": "User"},
+         "no_hp": "081234329592", "role": "User"},
     ],
     file_tiket: [],
     file_konser: {
@@ -41,8 +41,10 @@ DATA_AWAL = {
 
 
 def simpan_data(nama_file, data):
-    with open(nama_file, "w", encoding="utf-8") as file:
+    sementara = nama_file + ".tmp"
+    with open(sementara, "w", encoding="utf-8") as file:
         json.dump(data, file, indent=4, ensure_ascii=False)
+    os.replace(sementara, nama_file)
 
 
 def siapkan_data():
@@ -59,7 +61,6 @@ def baca_data(nama_file):
             return json.load(file)
     except FileNotFoundError:
         print("File tidak ditemukan:", nama_file)
-        return default
     except json.JSONDecodeError:
         print("Isi file JSON rusak:", nama_file)
-        return default
+    return default
