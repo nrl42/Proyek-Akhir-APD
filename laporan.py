@@ -1,7 +1,7 @@
 import os
 
 from database import baca_data, file_tiket, file_konser, folder_data
-from bantuan import rupiah, garis, waktu_sekarang
+from bantuan import rupiah, garis, waktu_sekarang, PrettyTable
 
 file_grafik = os.path.join(folder_data, "grafik_penjualan.png")
 file_laporan = os.path.join(folder_data, "laporan_penjualan.txt")

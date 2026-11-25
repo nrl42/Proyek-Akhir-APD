@@ -1,11 +1,4 @@
-﻿ansicon==1.89.0
-blessed==1.52.0
-colorama==0.4.6
-editor==2.0.1
-inquirer==3.4.1
-jinxed==2.1.0
-prettytable==3.18.0
-readchar==4.2.2
-runs==1.3.0
-wcwidth==0.9.4
-xmod==1.10.0
+﻿prettytable
+pwinput
+matplotlib
+colorama

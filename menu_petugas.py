@@ -1,6 +1,5 @@
 from database import baca_data, simpan_data, file_konser, file_akun, file_tiket
-from bantuan import (rupiah, garis, tanya_ya_tidak, tampilkan_rincian,
-                     tampilkan_baris_pesanan, tabel, clear, tekan_enter)
+from bantuan import (rupiah, garis, tanya_ya_tidak, tampilkan_rincian, tampilkan_baris_pesanan, tabel, clear, tekan_enter, PrettyTable)
 from beli_tiket import proses_pemesanan
 from pesanan import cari_pesanan, pembayaran_terakhir
 from pembayaran import batalkan_kadaluarsa, sisa_detik, format_sisa

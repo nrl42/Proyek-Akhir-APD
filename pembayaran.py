@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from database import baca_data, simpan_data, file_tiket, file_pembayaran
-from bantuan import (clear, rupiah, input_angka, input_wajib, tampilkan_struk, tabel, tekan_enter, id_berikutnya, waktu_sekarang)
+from bantuan import (clear, rupiah, input_angka, input_wajib, tampilkan_struk, tabel, tekan_enter, id_berikutnya, waktu_sekarang, PrettyTable)
 from pesanan import cari_pesanan, setujui_pembayaran, batalkan_pesanan
 
 METODE_PEMBAYARAN = ("Transfer BCA",)
@@ -58,9 +58,9 @@ def isi_data_diri(pesanan):
 
     while True:
         no_hp = input_wajib("No HP pemesan : ")
-        if no_hp.isdigit() and 10 <= len(no_hp) <= 13:
+        if no_hp.isdigit() and 11 <= len(no_hp) <= 13 and no_hp.startswith("08") :
             break
-        print("No HP harus 10-13 digit angka")
+        print("No HP harus 11-13 digit angka dan diawali 08")
 
     while True:
         email = input_wajib("Email : ")
@@ -188,7 +188,6 @@ def bayar_pesanan(kode):
     print(f"Selesaikan pembayaran dalam {BATAS_MENIT} menit sejak pesan "
         f"(sisa {format_sisa(sisa_detik(pesanan))}).")
 
-    # 2. data diri (hanya sekali per pesanan)
     if "data_diri" not in pesanan:
         data = isi_data_diri(pesanan)
         if data is None:
@@ -197,7 +196,6 @@ def bayar_pesanan(kode):
             return
         simpan_data_diri(kode, data)
 
-    # 3. metode
     metode = pilih_metode()
     if metode is None:
         print("Pembayaran ditunda. Pesanan bisa dibayar lewat menu Bayar Pesanan.")
@@ -209,7 +207,6 @@ def bayar_pesanan(kode):
         tekan_enter()
         return
 
-    # 4-5. bayar, 6. e-ticket
     hasil = proses_pembayaran(pesanan, metode)
     if hasil == "berhasil":
         tampilkan_eticket(kode, metode)

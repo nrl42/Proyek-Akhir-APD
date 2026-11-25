@@ -154,5 +154,179 @@
                 "yoi"
             ]
         }
+    },
+    {
+        "kode_pesan": "PSN5949",
+        "username": "nurul",
+        "kategori": "Reguler",
+        "jumlah": 2,
+        "harga_awal": 200000,
+        "diskon": 10000,
+        "total_bayar": 190000,
+        "status": "Lunas",
+        "kode_unik": "TKT-TWUNIP",
+        "status_tiket": "Active",
+        "waktu": "2026-11-25 15:16:35",
+        "data_diri": {
+            "nama_pemesan": "nurul azizah",
+            "no_hp": "082312424432",
+            "email": "bca@gmail.com",
+            "pemilik_tiket": [
+                "titut",
+                "hihu"
+            ]
+        }
+    },
+    {
+        "kode_pesan": "PSN9973",
+        "username": "dilla",
+        "kategori": "VVIP",
+        "jumlah": 4,
+        "harga_awal": 600000,
+        "diskon": 60000,
+        "total_bayar": 540000,
+        "status": "Lunas",
+        "kode_unik": "TKT-R7HW53",
+        "status_tiket": "Active",
+        "waktu": "2026-11-25 16:31:06",
+        "data_diri": {
+            "nama_pemesan": "dilla",
+            "no_hp": "081258589999",
+            "email": "dilla123@gmail.com",
+            "pemilik_tiket": [
+                "nuyul",
+                "dila",
+                "puja",
+                "nurdilpuj"
+            ]
+        }
+    },
+    {
+        "kode_pesan": "PSN8948",
+        "username": "dilla",
+        "kategori": "VIP",
+        "jumlah": 3,
+        "harga_awal": 300000,
+        "diskon": 30000,
+        "total_bayar": 270000,
+        "status": "Dibatalkan",
+        "kode_unik": "",
+        "status_tiket": "-",
+        "waktu": "2026-11-25 16:33:06",
+        "data_diri": {
+            "nama_pemesan": "nuy",
+            "no_hp": "1234567891011",
+            "email": "nuy@hayo.com",
+            "pemilik_tiket": [
+                "1",
+                "2",
+                "3"
+            ]
+        }
+    },
+    {
+        "kode_pesan": "PSN4805",
+        "username": "dilla",
+        "kategori": "VVIP",
+        "jumlah": 3,
+        "harga_awal": 450000,
+        "diskon": 45000,
+        "total_bayar": 405000,
+        "status": "Dibatalkan",
+        "kode_unik": "",
+        "status_tiket": "-",
+        "waktu": "2026-11-25 16:45:52",
+        "data_diri": {
+            "nama_pemesan": "nuy",
+            "no_hp": "123456789012",
+            "email": "nuy@gmail.com",
+            "pemilik_tiket": [
+                "1",
+                "2",
+                "3"
+            ]
+        }
+    },
+    {
+        "kode_pesan": "PSN8718",
+        "username": "dilla",
+        "kategori": "VIP",
+        "jumlah": 3,
+        "harga_awal": 300000,
+        "diskon": 30000,
+        "total_bayar": 270000,
+        "status": "Dibatalkan",
+        "kode_unik": "",
+        "status_tiket": "-",
+        "waktu": "2026-11-25 16:56:56"
+    },
+    {
+        "kode_pesan": "PSN7714",
+        "username": "dilla",
+        "kategori": "VVIP",
+        "jumlah": 3,
+        "harga_awal": 450000,
+        "diskon": 45000,
+        "total_bayar": 405000,
+        "status": "Lunas",
+        "kode_unik": "TKT-ZOPUAJ",
+        "status_tiket": "Active",
+        "waktu": "2026-11-25 16:57:15",
+        "data_diri": {
+            "nama_pemesan": "nuy",
+            "no_hp": "081212121212",
+            "email": "nuy@gmail.com",
+            "pemilik_tiket": [
+                "1",
+                "2",
+                "3"
+            ]
+        }
+    },
+    {
+        "kode_pesan": "PSN9877",
+        "username": "dilla",
+        "kategori": "Reguler",
+        "jumlah": 3,
+        "harga_awal": 150000,
+        "diskon": 15000,
+        "total_bayar": 135000,
+        "status": "Menunggu Pembayaran",
+        "kode_unik": "",
+        "status_tiket": "-",
+        "waktu": "2026-11-25 17:21:00",
+        "data_diri": {
+            "nama_pemesan": "nuy",
+            "no_hp": "081212121212",
+            "email": "dil@gmail.com",
+            "pemilik_tiket": [
+                "1",
+                "2",
+                "3"
+            ]
+        }
+    },
+    {
+        "kode_pesan": "PSN7349",
+        "username": "dilla",
+        "kategori": "VIP",
+        "jumlah": 3,
+        "harga_awal": 300000,
+        "diskon": 30000,
+        "total_bayar": 270000,
+        "status": "Lunas",
+        "kode_unik": "TKT-04YY6G",
+        "status_tiket": "Active",
+        "waktu": "2026-11-25 17:31:03",
+        "data_diri": {
+            "nama_pemesan": "nuy",
+            "no_hp": "081258589999",
+            "email": "nuydiypuy@gmail.com",
+            "pemilik_tiket": [
+                "nuy",
+                "duy",
+                "puy"
+            ]
+        }
     }
 ]
