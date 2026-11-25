@@ -291,7 +291,7 @@
         "harga_awal": 150000,
         "diskon": 15000,
         "total_bayar": 135000,
-        "status": "Menunggu Pembayaran",
+        "status": "Dibatalkan",
         "kode_unik": "",
         "status_tiket": "-",
         "waktu": "2026-11-25 17:21:00",
