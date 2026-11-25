@@ -1,7 +1,8 @@
 from database import baca_data, simpan_data, file_tiket, file_pembatalan
-from bantuan import rupiah, id_berikutnya, garis, waktu_sekarang, clear, tekan_enter
+from bantuan import (rupiah, id_berikutnya, garis, waktu_sekarang, clear, tekan_enter, PrettyTable)
 from beli_tiket import beli_tiket
 from pembayaran import batalkan_kadaluarsa, sisa_detik, format_sisa
+
 
 
 STATUS_BISA_BATAL = ("Menunggu Pembayaran", "Menunggu Verifikasi", "Lunas")

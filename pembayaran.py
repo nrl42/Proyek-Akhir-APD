@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from database import baca_data, simpan_data, file_tiket, file_pembayaran
-from bantuan import (clear, rupiah, input_angka, input_wajib, tampilkan_struk, tabel, tekan_enter, id_berikutnya, waktu_sekarang)
+from bantuan import (clear, rupiah, input_angka, input_wajib, tampilkan_struk, tabel, tekan_enter, id_berikutnya, waktu_sekarang, PrettyTable)
 from pesanan import cari_pesanan, setujui_pembayaran, batalkan_pesanan
 
 METODE_PEMBAYARAN = ("Transfer BCA",)
@@ -58,9 +58,9 @@ def isi_data_diri(pesanan):
 
     while True:
         no_hp = input_wajib("No HP pemesan : ")
-        if no_hp.isdigit() and 10 <= len(no_hp) <= 13:
+        if no_hp.isdigit() and 11 <= len(no_hp) <= 13 and no_hp.startswith("08") :
             break
-        print("No HP harus 10-13 digit angka")
+        print("No HP harus 11-13 digit angka dan diawali 08")
 
     while True:
         email = input_wajib("Email : ")

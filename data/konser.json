@@ -1,26 +1,26 @@
 {
-    "judul": "KONSER HINDIA",
-    "tanggal": "23 Desember 2026",
-    "waktu": "15.00 WITA",
+    "judul": "Konser Hindia",
+    "tanggal": "20 Desember 2026",
+    "waktu": "19.00 WITA",
     "lokasi": "Samarinda",
     "kategori": [
         {
             "nomor": 1,
             "jenis": "Reguler",
-            "harga": 100000,
-            "kuota": 148
+            "harga": 50000,
+            "kuota": 97
         },
         {
             "nomor": 2,
             "jenis": "VIP",
-            "harga": 150000,
-            "kuota": 55
+            "harga": 100000,
+            "kuota": 47
         },
         {
             "nomor": 3,
             "jenis": "VVIP",
-            "harga": 200000,
-            "kuota": 30
+            "harga": 150000,
+            "kuota": 13
         }
     ]
 }

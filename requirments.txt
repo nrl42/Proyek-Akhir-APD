@@ -1,3 +1,4 @@
 ﻿prettytable
 pwinput
 matplotlib
+colorama
