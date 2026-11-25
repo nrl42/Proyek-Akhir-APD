@@ -1,6 +1,6 @@
 from database import (baca_data, simpan_data, file_akun, file_konser, file_diskon, file_tiket, file_pembayaran, file_pembatalan)
-from bantuan import (rupiah, garis, input_angka, input_angka_kosong, input_wajib, tanya_ya_tidak, id_berikutnya, tampilkan_rincian, tampilkan_baris_pesanan, clear, input_password)
-from pesanan import (cari_pesanan, cari_kategori, pembayaran_terakhir, setujui_pembayaran, tolak_pembayaran, batalkan_pesanan)
+from bantuan import (rupiah, garis, input_angka, input_angka_kosong, input_wajib, tanya_ya_tidak, id_berikutnya, tampilkan_rincian, tampilkan_baris_pesanan, clear, input_password, tekan_enter)
+from pesanan import (cari_pesanan, cari_kategori, pembayaran_terakhir, batalkan_pesanan)
 from pembayaran import batalkan_kadaluarsa
 from laporan import (hitung_penjualan, tampilkan_laporan, tampilkan_diagram_batang, simpan_laporan_teks, file_grafik, file_laporan)
 
@@ -79,7 +79,10 @@ def kelolaAkun(akun_admin):
             elif tanya_ya_tidak(f"Hapus akun {a['username']}?"):
                 daftar_akun.pop(nomor - 1)
                 simpan_data(file_akun, daftar_akun)
-                print("Akun berhasil dihapus")
+                print(f"akun {a['username']} telah dihapus")
+            else:
+                print("penghapusan akun dibatalkan")
+            tekan_enter()
 
         elif pilih == "4":
             print("Logout berhasil")
@@ -169,7 +172,7 @@ def hapus_kategori(konser):
 
 
 def kelolaKonserDanKatalog():
-    pesan = ""        # hasil aksi sebelumnya, ditampilkan setelah layar dibersihkan
+    pesan = ""        
     while True:
         clear()
         konser = baca_data(file_konser)
@@ -308,50 +311,24 @@ def lihatTransaksiPemesanan():
         print("Status       :", t["status"])
         print("Status tiket :", t["status_tiket"])
 
+def LihatTransaksiPembayaran():
+    clear()
+    daftar_bayar = baca_data(file_pembayaran)
+    print("====== Transaksi Pembayaran ======")
 
+    if len(daftar_bayar) == 0:
+        print("transaksi pembayaran belum tersedia")
+        return
+        
 
-def kelolaVerifikasiPembayaran():
-    while True:
-        clear()
-        menunggu = [b for b in baca_data(file_pembayaran) if b["status"] == "Menunggu Verifikasi"]
-        print("=====VERIFIKASI PEMBAYARAN=====")
-        if len(menunggu) == 0:
-            print("Tidak ada pembayaran menunggu")
-            return
+    print(f"\n{'ID':<5}{'Kode':<15}{'Username':<15}{'Metode':<18}{'Nominal':<15}{'Status':<25}")
 
-        for b in menunggu:
-            print(f"{b['kode_pesan']} | {b['username']} | {rupiah(b['nominal'])} | {b['waktu']}")
+    for b in daftar_bayar:
+        print(f"{b['id']:<5}{b['kode_pesan']:<15}" 
+        f"{b['username']:<15}{b['metode']:<18}"
+        f"{rupiah(b['nominal']):<15}{b['status']:<25}")
 
-        kode = input("Kode pesanan yang diperiksa (0 untuk kembali): ").strip().upper()
-        if kode == "0":
-            return
-
-        bayar = None
-        for b in menunggu:
-            if b["kode_pesan"] == kode:
-                bayar = b
-        if bayar is None:
-            print("kode pesanan tidak ada")
-            continue
-
-        pesanan = cari_pesanan(baca_data(file_tiket), kode)
-        print("\n--- Detail Pembayaran ---")
-        tampilkan_rincian(pesanan)
-        print("Nominal dibayar:", rupiah(bayar["nominal"]))
-
-        if bayar["nominal"] != pesanan["total_bayar"]:
-            print("PERINGATAN: nominal tidak sama dengan total bayar!")
-
-        if tanya_ya_tidak("Setujui pembayaran?"):
-            setujui_pembayaran(kode)
-            print("Pembayaran berhasil diverifikasi, status Lunas, tiket Active")
-        else:
-            tolak_pembayaran(kode)
-            print("Pembayaran ditolak")
-
-        if not tanya_ya_tidak("Verifikasi transaksi lain?"):
-            return
-
+    tekan_enter()
 
 
 def kelolaPembatalanTiket():
@@ -424,8 +401,6 @@ def lihatRincianHarga():
     tampilkan_rincian(t)
     print("Persentase diskon:", str(persen) + "%")
 
-
-
 def lihatLaporanPenjualan():
     clear()
     hasil, pembeli = hitung_penjualan()
@@ -455,7 +430,7 @@ def menu_admin(akun):
         print("2. Kelola informasi konser dan katalog tiket")
         print("3. Kelola ketentuan diskon pembelian tiket")
         print("4. Lihat seluruh transaksi pemesanan")
-        print("5. Kelola dan verifikasi pembayaran")
+        print("5. Lihat Transaksi Pembayaran")
         print("6. Kelola pembatalan tiket")
         print("7. Lihat rincian harga sebelum dan sesudah diskon")
         print("8. Lihat laporan penjualan tiket (diagram batang)")
@@ -471,7 +446,7 @@ def menu_admin(akun):
         elif menu == "4":
             lihatTransaksiPemesanan()
         elif menu == "5":
-            kelolaVerifikasiPembayaran()
+            LihatTransaksiPembayaran()
         elif menu == "6":
             kelolaPembatalanTiket()
         elif menu == "7":

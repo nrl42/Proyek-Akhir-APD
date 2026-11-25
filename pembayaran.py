@@ -188,7 +188,6 @@ def bayar_pesanan(kode):
     print(f"Selesaikan pembayaran dalam {BATAS_MENIT} menit sejak pesan "
         f"(sisa {format_sisa(sisa_detik(pesanan))}).")
 
-    # 2. data diri (hanya sekali per pesanan)
     if "data_diri" not in pesanan:
         data = isi_data_diri(pesanan)
         if data is None:
@@ -197,7 +196,6 @@ def bayar_pesanan(kode):
             return
         simpan_data_diri(kode, data)
 
-    # 3. metode
     metode = pilih_metode()
     if metode is None:
         print("Pembayaran ditunda. Pesanan bisa dibayar lewat menu Bayar Pesanan.")
@@ -209,7 +207,6 @@ def bayar_pesanan(kode):
         tekan_enter()
         return
 
-    # 4-5. bayar, 6. e-ticket
     hasil = proses_pembayaran(pesanan, metode)
     if hasil == "berhasil":
         tampilkan_eticket(kode, metode)

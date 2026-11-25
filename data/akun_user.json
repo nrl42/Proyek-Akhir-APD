@@ -21,23 +21,9 @@
         "role": "User"
     },
     {
-        "username": "duan",
-        "password": "duan123",
-        "nama": "riduan khairy",
-        "no_hp": "081234355324",
-        "role": "User"
-    },
-    {
-        "username": "dilla",
-        "password": "anjing",
-        "nama": "dilla123",
-        "no_hp": "081111111111",
-        "role": "User"
-    },
-    {
         "username": "nurfadilla",
-        "password": "dilla123",
-        "nama": "dilla",
+        "password": "dila123",
+        "nama": "dill",
         "no_hp": "081258585858",
         "role": "User"
     },

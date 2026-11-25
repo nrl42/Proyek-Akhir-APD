@@ -141,7 +141,7 @@
         "harga_awal": 100000,
         "diskon": 5000,
         "total_bayar": 95000,
-        "status": "Menunggu Pembayaran",
+        "status": "Dibatalkan",
         "kode_unik": "",
         "status_tiket": "-",
         "waktu": "2026-11-25 03:07:41",
@@ -152,6 +152,28 @@
             "pemilik_tiket": [
                 "hihu",
                 "yoi"
+            ]
+        }
+    },
+    {
+        "kode_pesan": "PSN5949",
+        "username": "nurul",
+        "kategori": "Reguler",
+        "jumlah": 2,
+        "harga_awal": 200000,
+        "diskon": 10000,
+        "total_bayar": 190000,
+        "status": "Lunas",
+        "kode_unik": "TKT-TWUNIP",
+        "status_tiket": "Active",
+        "waktu": "2026-11-25 15:16:35",
+        "data_diri": {
+            "nama_pemesan": "nurul azizah",
+            "no_hp": "082312424432",
+            "email": "bca@gmail.com",
+            "pemilik_tiket": [
+                "titut",
+                "hihu"
             ]
         }
     }
