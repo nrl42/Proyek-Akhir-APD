@@ -54,5 +54,12 @@
         "nama": "nur fadilla",
         "no_hp": "081258589999",
         "role": "User"
+    },
+    {
+        "username": "attar",
+        "password": "attar123",
+        "nama": "attar bakrie",
+        "no_hp": "084245723884",
+        "role": "User"
     }
 ]
